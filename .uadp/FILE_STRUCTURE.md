@@ -26,7 +26,8 @@ UADP/
 │   │   └── contract.schema.json    # contract.json 的 Schema
 │   │
 │   ├── logs/                       # 決策紀錄目錄
-│   │   └── decisions.md            # 技術決策紀錄
+│   │   ├── decisions.md            # 技術決策紀錄
+│   │   └── release_v1.0_checklist.md  # v1.0 發布檢查清單（已歸檔）
 │   │
 │   │
 │   ├── FILE_STRUCTURE.md            # 本檔案（核心資產）
