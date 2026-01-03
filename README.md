@@ -2,8 +2,8 @@
 
 > **將 Cursor 從代碼聊天機器人轉化為具備權力制衡、自主修正與標準開發流程的自動化軟體工廠**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version: 1.0](https://img.shields.io/badge/Version-1.0-blue.svg)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/OG-Matcha/UADP/blob/main/LICENSE)
+[![Version: 1.0](https://img.shields.io/badge/Version-1.0-blue.svg)](https://github.com/OG-Matcha/UADP)
 
 ---
 
@@ -97,7 +97,7 @@ UADP 是一個**元框架（Meta-Framework）**，它為 Cursor IDE 提供了一
 #### 1. Clone 專案
 
 ```bash
-git clone https://github.com/your-username/UADP.git
+git clone https://github.com/OG-Matcha/UADP.git
 cd UADP
 ```
 
@@ -296,8 +296,8 @@ your-project/
 
 ## 📞 聯絡方式
 
-- **Issues**: [GitHub Issues](https://github.com/your-username/UADP/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-username/UADP/discussions)
+- **Issues**: [GitHub Issues](https://github.com/OG-Matcha/UADP/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/OG-Matcha/UADP/discussions)
 
 ---
 
