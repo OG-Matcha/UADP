@@ -218,6 +218,6 @@ UADP（Universal AI Development Protocol）是一個「AI 軟體開發助手」�
 
 ---
 
-**最後更新：** 2025-01-27  
+**最後更新：** 2026-01-04  
 **版本：** 1.0
 
