@@ -1,0 +1,111 @@
+---
+alwaysApply: false
+appliesTo: ["**/*.{js,jsx,ts,tsx}", "package.json", "vite.config.*"]
+---
+# UADP 現代 Web 適配器（React/Vite）
+
+> **適用範圍：** React + Vite 專案  
+> **觸發條件：** 偵測到 `package.json` 且包含 `react` 與 `vite` 依賴
+
+---
+
+## 1. 技術棧識別
+
+### 1.1 專案特徵
+- **依賴管理**：`package.json`
+- **主要語言**：TypeScript/JavaScript
+- **測試框架**：`vitest` 或 `jest`
+
+### 1.2 自動偵測
+當 UADP 偵測到以下檔案時，自動載入此適配器：
+- `package.json`（包含 `react` 與 `vite`）
+- `vite.config.ts` 或 `vite.config.js`
+- `src/` 目錄
+
+---
+
+## 2. 測試框架配置
+
+### 2.1 測試框架
+- **框架名稱**：`vitest`（推薦）或 `jest`
+- **測試檔案模式**：`*.test.{js,ts,tsx}`, `*.spec.{js,ts,tsx}`
+- **測試目錄**：`src/__tests__/` 或與源碼同目錄
+
+### 2.2 測試命令
+```bash
+# 執行所有測試
+npm test
+
+# 執行測試並監聽變更
+npm test -- --watch
+
+# 執行測試並生成覆蓋率報告
+npm test -- --coverage
+```
+
+### 2.3 測試結構範例
+```typescript
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { UserProfile } from './UserProfile';
+
+describe('UserProfile', () => {
+  it('renders user name', () => {
+    render(<UserProfile name="John" />);
+    expect(screen.getByText('John')).toBeInTheDocument();
+  });
+
+  it('handles empty name', () => {
+    render(<UserProfile name="" />);
+    expect(screen.queryByText(/John/)).not.toBeInTheDocument();
+  });
+});
+```
+
+---
+
+## 3. 編碼規範
+
+### 3.1 TypeScript 風格指南
+- 使用 TypeScript 嚴格模式
+- 遵循 ESLint 與 Prettier 配置
+- 使用函式組件與 Hooks
+
+### 3.2 專案結構
+```
+src/
+├── components/
+├── pages/
+├── hooks/
+├── utils/
+├── types/
+└── __tests__/
+```
+
+### 3.3 依賴管理
+- 使用 `package.json` 管理依賴
+- 區分 `dependencies` 與 `devDependencies`
+- 使用 `package-lock.json` 鎖定版本
+
+---
+
+## 4. 最佳實踐
+
+### 4.1 組件設計
+- 單一職責原則：每個組件只負責一個功能
+- 可重用性：提取通用邏輯至自定義 Hooks
+- 效能優化：使用 `React.memo` 與 `useMemo`
+
+### 4.2 狀態管理
+- 本地狀態使用 `useState`
+- 共享狀態使用 Context 或狀態管理庫（如 Zustand、Redux）
+- 避免過度使用全局狀態
+
+### 4.3 錯誤處理
+- 使用 Error Boundary 捕獲組件錯誤
+- 提供使用者友好的錯誤訊息
+- 記錄錯誤至日誌系統
+
+---
+
+**最後更新：** 2025-01-27

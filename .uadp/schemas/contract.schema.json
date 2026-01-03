@@ -1,0 +1,195 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://uadp.dev/schemas/contract.schema.json",
+  "title": "UADP Contract Schema",
+  "description": "UADP 契約 JSON Schema，定義 contract.json 的結構與驗證規則",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "created_at",
+    "project_type",
+    "metadata",
+    "requirements",
+    "milestones"
+  ],
+  "properties": {
+    "contract_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "契約版本號（格式：major.minor）"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "契約建立時間（ISO 8601）"
+    },
+    "project_type": {
+      "type": "string",
+      "description": "專案類型（如：framework_package, web_app, mobile_app）"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["project_name", "description"],
+      "properties": {
+        "project_name": {
+          "type": "string",
+          "description": "專案名稱"
+        },
+        "description": {
+          "type": "string",
+          "description": "專案描述"
+        },
+        "target_users": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "目標使用者列表"
+        },
+        "technology_stack": {
+          "type": "object",
+          "properties": {
+            "core": {
+              "type": "string"
+            },
+            "auxiliary_scripts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "integration_points": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "requirements": {
+      "type": "object",
+      "required": ["hard_constraints", "technical_freedom"],
+      "properties": {
+        "hard_constraints": {
+          "type": "object",
+          "description": "核心約束（不可變的約束條件）",
+          "properties": {
+            "environment": {
+              "type": "object"
+            },
+            "sdlc_phases": {
+              "type": "object"
+            },
+            "test_guard": {
+              "type": "object"
+            },
+            "autonomous_amendment": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": true
+        },
+        "technical_freedom": {
+          "type": "object",
+          "description": "技術自由度（可選擇的技術方案）",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "milestones": {
+      "type": "object",
+      "description": "階段性任務與驗收標準",
+      "patternProperties": {
+        "^phase_\\d+_.+$": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["pending", "in_progress", "completed"]
+            },
+            "deliverables": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "acceptance_criteria": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "decisions": {
+              "type": "object",
+              "description": "階段決策記錄",
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "problem_statement": {
+      "type": "object",
+      "properties": {
+        "core_issues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "existing_solutions_limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "design_rationale": {
+      "type": "object",
+      "description": "設計理由說明",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "question": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["pending", "resolved"]
+              },
+              "resolution": {
+                "type": "string"
+              },
+              "documented_in": {
+                "type": "string"
+              }
+            },
+            "required": ["question", "status"]
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}
+

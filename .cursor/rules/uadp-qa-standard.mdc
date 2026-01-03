@@ -1,0 +1,333 @@
+---
+alwaysApply: true
+---
+# UADP QA 標準：測試鎖定與驗證邏輯
+
+> **檔案路徑：** `.cursor/rules/uadp-qa-standard.mdc`  
+> **適用範圍：** 測試相關檔案 `tests/**`, `**/*.test.*`, `**/*.spec.*`  
+> **優先級：** 最高 (Critical)  
+> **依賴：** 需與 `uadp-core.mdc` 和 `uadp-agent-roles.mdc` 配合使用
+
+---
+
+## 1. 測試鎖定機制（Test Guard）核心原則
+
+### 1.1 權力分離（Separation of Powers）
+- **QA 角色**：唯一有權生成與修改測試檔案的角色
+- **Coder 角色**：無權修改 `tests/` 目錄下的任何檔案
+- **Auditor 角色**：負責審計測試變更，記錄至 `amendments.md`
+
+### 1.2 對抗性設計（Adversarial Design）
+- QA 與 Coder 在邏輯上處於「對抗關係」
+- QA 的目標是「找出代碼缺陷」，而非「讓測試通過」
+- Coder 的目標是「通過測試」，而非「修改測試邏輯」
+
+### 1.3 雜湊鎖定（Hash Locking）
+- 測試檔案生成後，計算 SHA-256 Hash
+- Hash 記錄於 `.uadp/state.json` 的 `test_hashes` 欄位
+- 任何對測試檔案的修改都必須更新 Hash，並記錄理由
+
+---
+
+## 2. 測試生成標準
+
+### 2.1 測試生成時機
+- **必須在實作前生成**：QA 角色必須在 Coder 開始實作前產出測試檔案
+- **基於 contract.json**：測試必須對應 `contract.json` 中的 `milestones` 與 `acceptance_criteria`
+- **涵蓋所有驗收標準**：每個驗收標準都必須有對應的測試案例
+
+### 2.2 測試檔案結構
+```
+tests/
+├── unit/              # 單元測試
+├── integration/       # 整合測試
+├── e2e/              # 端到端測試
+└── fixtures/         # 測試資料
+```
+
+### 2.3 測試覆蓋範圍
+
+#### 2.3.1 邏輯邊界測試（Boundary Testing）
+必須測試以下邊界條件：
+- **空值處理**：`null`, `undefined`, `""`, `[]`, `{}`
+- **極值處理**：最大/最小值、超長字串、超大數字
+- **類型邊界**：類型轉換、類型檢查
+- **數量邊界**：0 個、1 個、多個、極大量
+
+**範例（Python/pytest）：**
+```python
+def test_empty_input():
+    """測試空輸入處理"""
+    result = process_data("")
+    assert result is None or result == []
+
+def test_max_length():
+    """測試最大長度限制"""
+    long_string = "a" * 10000
+    result = process_data(long_string)
+    assert len(result) <= MAX_LENGTH
+```
+
+#### 2.3.2 錯誤路徑測試（Error Path Testing）
+必須測試以下錯誤情況：
+- **異常輸入**：無效格式、錯誤類型、惡意輸入
+- **網路錯誤**：連線超時、伺服器錯誤、DNS 解析失敗
+- **權限錯誤**：無權限存取、認證失敗、授權過期
+- **資源錯誤**：磁碟空間不足、記憶體不足、檔案不存在
+
+**範例（JavaScript/jest）：**
+```javascript
+test('handles network timeout', async () => {
+  const mockFetch = jest.fn(() => 
+    Promise.reject(new Error('Network timeout'))
+  );
+  global.fetch = mockFetch;
+  
+  await expect(fetchData('/api/data')).rejects.toThrow('Network timeout');
+});
+```
+
+#### 2.3.3 UI 可見性測試（UI Visibility Testing）
+必須測試以下 UI 元素：
+- **元素渲染**：關鍵元素是否正確渲染
+- **互動回饋**：按鈕點擊、表單提交、載入狀態
+- **錯誤提示**：錯誤訊息是否正確顯示
+- **無障礙性**：鍵盤導航、螢幕閱讀器支援
+
+**範例（Flutter/flutter_test）：**
+```dart
+testWidgets('displays error message on invalid input', (WidgetTester tester) async {
+  await tester.pumpWidget(MyApp());
+  await tester.enterText(find.byType(TextField), 'invalid');
+  await tester.tap(find.byType(ElevatedButton));
+  await tester.pump();
+  
+  expect(find.text('Invalid input format'), findsOneWidget);
+});
+```
+
+#### 2.3.4 整合測試（Integration Testing）
+必須測試以下整合場景：
+- **模組間互動**：多個模組協同運作
+- **資料流**：資料從輸入到輸出的完整流程
+- **狀態同步**：狀態管理、快取更新、資料一致性
+- **外部依賴**：資料庫、API、檔案系統
+
+---
+
+## 3. 測試框架選擇
+
+### 3.1 由適配器決定
+測試框架由專案適配器（Adapter）決定，常見對應：
+
+| 技術棧 | 測試框架 | 檔案模式 |
+| :--- | :--- | :--- |
+| Python | `pytest` | `test_*.py`, `*_test.py` |
+| JavaScript/TypeScript | `jest`, `vitest` | `*.test.js`, `*.spec.js` |
+| Flutter | `flutter_test` | `*_test.dart` |
+| Rust | `cargo test` | `#[cfg(test)]` |
+| Go | `testing` | `*_test.go` |
+
+### 3.2 測試命令標準化
+適配器必須定義標準測試命令：
+- **執行所有測試**：`npm test`, `pytest`, `flutter test`
+- **執行單一測試**：`npm test -- <test_name>`, `pytest <test_file>`
+- **覆蓋率報告**：`npm test -- --coverage`, `pytest --cov`
+
+---
+
+## 4. 測試鎖定流程
+
+### 4.1 測試生成與鎖定
+```
+1. [MODE: QA] 生成測試檔案
+   ↓
+2. 計算測試檔案 Hash (SHA-256)
+   ↓
+3. 更新 .uadp/state.json：
+   {
+     "test_hashes": {
+       "tests/unit/test_example.py": "abc123...",
+       "tests/integration/test_api.py": "def456..."
+     }
+   }
+   ↓
+4. 在規則中明確規定：Coder 無權修改 tests/ 目錄
+```
+
+### 4.2 Hash 計算方法
+使用 SHA-256 計算檔案內容 Hash：
+
+**Python 範例：**
+```python
+import hashlib
+
+def calculate_file_hash(file_path):
+    with open(file_path, 'rb') as f:
+        content = f.read()
+    return hashlib.sha256(content).hexdigest()
+```
+
+**JavaScript 範例：**
+```javascript
+const crypto = require('crypto');
+const fs = require('fs');
+
+function calculateFileHash(filePath) {
+  const content = fs.readFileSync(filePath);
+  return crypto.createHash('sha256').update(content).digest('hex');
+}
+```
+
+### 4.3 測試修改流程（僅在特殊情況下）
+若需修改測試，必須遵循以下流程：
+
+```
+1. [MODE: CODER] 發現測試有誤
+   ↓
+2. 切換至 [MODE: AUDITOR]
+   ↓
+3. 在 amendments.md 記錄：
+   [AMENDMENT] 原因: 測試邏輯錯誤，應測試 X 而非 Y | 
+   做法: 修改 tests/unit/test_example.py 第 10 行 | 
+   影響: 測試更準確反映需求
+   ↓
+4. [MODE: ARCHITECT] 審查並授權
+   ↓
+5. [MODE: QA] 修改測試並更新 Hash
+```
+
+---
+
+## 5. 測試執行與驗證
+
+### 5.1 測試執行標準
+- **必須可執行**：測試檔案必須能夠直接執行，無需手動配置
+- **必須可重複**：測試結果必須可重複，不依賴外部狀態
+- **必須快速**：單元測試應在秒級完成，整合測試應在分鐘級完成
+
+### 5.2 測試驗證檢查點
+在以下時機必須執行測試驗證：
+
+1. **Coder 完成實作後**：必須執行所有相關測試
+2. **提交代碼前**：必須通過所有測試
+3. **合併分支前**：必須通過 CI 測試閘道
+
+### 5.3 測試失敗處理
+當測試失敗時：
+
+1. **Coder 必須修復實作代碼**，而非測試
+2. **禁止修改測試邏輯**（除非觸發自主修正協議）
+3. **記錄失敗原因**：在 `amendments.md` 記錄（如需要）
+
+---
+
+## 6. 測試品質標準
+
+### 6.1 測試命名規範
+- **描述性命名**：測試名稱必須清楚描述測試內容
+- **遵循框架慣例**：如 `test_<functionality>`, `should_<behavior>`
+
+**範例：**
+```python
+# ✅ 好：清楚描述測試內容
+def test_process_data_with_empty_string_returns_none():
+    ...
+
+# ❌ 差：命名不清楚
+def test_1():
+    ...
+```
+
+### 6.2 測試結構規範
+- **AAA 模式**：Arrange（準備）→ Act（執行）→ Assert（驗證）
+- **單一職責**：每個測試只測試一個功能點
+- **獨立性**：測試之間不應有依賴關係
+
+**範例：**
+```python
+def test_calculate_total():
+    # Arrange: 準備測試資料
+    items = [10, 20, 30]
+    
+    # Act: 執行被測試功能
+    result = calculate_total(items)
+    
+    # Assert: 驗證結果
+    assert result == 60
+```
+
+### 6.3 測試覆蓋率要求
+- **單元測試**：核心邏輯覆蓋率 ≥ 80%
+- **整合測試**：關鍵流程覆蓋率 ≥ 60%
+- **E2E 測試**：主要使用者流程 100% 覆蓋
+
+---
+
+## 7. 違規檢測與處理
+
+### 7.1 違規行為定義
+以下行為視為違規：
+
+1. **Coder 直接修改測試檔案**（未經授權）
+2. **為了讓測試通過而修改測試邏輯**（未觸發自主修正協議）
+3. **跳過測試直接提交代碼**
+4. **生成無法執行的測試檔案**
+
+### 7.2 違規處理流程
+```
+1. 偵測到違規行為
+   ↓
+2. 立即停止當前操作
+   ↓
+3. 記錄違規至 amendments.md
+   ↓
+4. 切換至正確角色或請求使用者確認
+   ↓
+5. 提出符合規範的修正方案
+```
+
+### 7.3 Hash 驗證機制
+在以下時機驗證測試檔案 Hash：
+
+1. **Coder 提交代碼前**：檢查測試檔案 Hash 是否變更
+2. **CI 執行前**：驗證測試檔案完整性
+3. **審計階段**：檢查是否有未授權的測試修改
+
+---
+
+## 8. 測試最佳實踐
+
+### 8.1 測試資料管理
+- **使用 Fixtures**：將測試資料集中管理
+- **避免硬編碼**：使用配置檔案或環境變數
+- **清理資源**：測試後清理臨時檔案、資料庫記錄
+
+### 8.2 Mock 與 Stub
+- **外部依賴**：Mock 網路請求、資料庫、檔案系統
+- **時間依賴**：Mock 時間函式以確保可重複性
+- **隨機性**：固定隨機種子以確保可重複性
+
+### 8.3 測試效能
+- **並行執行**：利用測試框架的並行執行功能
+- **測試隔離**：確保測試之間不互相影響
+- **資源清理**：及時釋放測試資源
+
+---
+
+## 9. 測試文件化
+
+### 9.1 測試註解要求
+- **描述測試目的**：每個測試都應有清楚的註解
+- **說明測試場景**：複雜測試應說明測試場景與預期結果
+- **標註特殊情況**：如需要特定環境或權限
+
+### 9.2 測試報告
+- **執行結果**：記錄測試通過/失敗狀態
+- **覆蓋率報告**：生成測試覆蓋率報告
+- **效能報告**：記錄測試執行時間
+
+---
+
+**最後更新：** 2025-01-27  
+**版本：** 1.0

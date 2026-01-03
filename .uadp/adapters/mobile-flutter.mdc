@@ -1,0 +1,115 @@
+---
+alwaysApply: false
+appliesTo: ["**/*.dart", "pubspec.yaml"]
+---
+# UADP Flutter 適配器
+
+> **適用範圍：** Flutter 專案  
+> **觸發條件：** 偵測到 `pubspec.yaml` 檔案
+
+---
+
+## 1. 技術棧識別
+
+### 1.1 專案特徵
+- **依賴管理**：`pubspec.yaml`
+- **主要語言**：Dart
+- **測試框架**：`flutter_test`
+
+### 1.2 自動偵測
+當 UADP 偵測到以下檔案時，自動載入此適配器：
+- `pubspec.yaml`
+- `lib/main.dart`
+- `test/` 目錄
+
+---
+
+## 2. 測試框架配置
+
+### 2.1 測試框架
+- **框架名稱**：`flutter_test`
+- **測試檔案模式**：`*_test.dart`
+- **測試目錄**：`test/`
+
+### 2.2 測試命令
+```bash
+# 執行所有測試
+flutter test
+
+# 執行特定測試檔案
+flutter test test/unit/user_test.dart
+
+# 執行測試並生成覆蓋率報告
+flutter test --coverage
+```
+
+### 2.3 測試結構範例
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:my_app/main.dart';
+
+void main() {
+  group('User Model Tests', () {
+    test('creates user with valid data', () {
+      final user = User(name: 'John', email: 'john@example.com');
+      expect(user.name, 'John');
+      expect(user.email, 'john@example.com');
+    });
+
+    testWidgets('displays user name in UI', (WidgetTester tester) async {
+      await tester.pumpWidget(MyApp());
+      expect(find.text('John'), findsOneWidget);
+    });
+  });
+}
+```
+
+---
+
+## 3. 編碼規範
+
+### 3.1 Dart 風格指南
+- 遵循 [Effective Dart](https://dart.dev/guides/language/effective-dart) 指南
+- 使用 `dart format` 格式化代碼
+- 使用 `dart analyze` 檢查代碼品質
+
+### 3.2 專案結構
+```
+lib/
+├── main.dart
+├── models/
+├── views/
+├── controllers/
+└── services/
+test/
+├── unit/
+├── widget/
+└── integration/
+```
+
+### 3.3 依賴管理
+- 使用 `pubspec.yaml` 管理依賴
+- 區分 `dependencies` 與 `dev_dependencies`
+- 鎖定版本號以確保可重複性
+
+---
+
+## 4. 最佳實踐
+
+### 4.1 狀態管理
+- 推薦使用 `Provider`、`Riverpod` 或 `Bloc`
+- 避免在 Widget 中直接管理狀態
+
+### 4.2 錯誤處理
+- 使用 `try-catch` 處理異常
+- 提供使用者友好的錯誤訊息
+- 記錄錯誤至日誌系統
+
+### 4.3 效能優化
+- 使用 `const` 建構子減少重建
+- 避免在 `build` 方法中進行重計算
+- 使用 `ListView.builder` 處理長列表
+
+---
+
+**最後更新：** 2025-01-27

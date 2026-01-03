@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://uadp.dev/schemas/state.schema.json",
+  "title": "UADP State Schema",
+  "description": "UADP 狀態機 JSON Schema，定義 state.json 的結構與驗證規則",
+  "type": "object",
+  "required": [
+    "current_phase",
+    "phase_history",
+    "last_updated",
+    "contract_file",
+    "amendments_file"
+  ],
+  "properties": {
+    "current_phase": {
+      "type": "string",
+      "enum": ["PLANNING", "DIAGNOSIS", "IMPLEMENTATION", "AUDIT"],
+      "description": "當前 SDLC 階段"
+    },
+    "phase_history": {
+      "type": "array",
+      "description": "階段歷史記錄",
+      "items": {
+        "type": "object",
+        "required": ["phase", "entered_at", "status"],
+        "properties": {
+          "phase": {
+            "type": "string",
+            "enum": ["PLANNING", "DIAGNOSIS", "IMPLEMENTATION", "AUDIT"]
+          },
+          "entered_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "進入階段的時間（ISO 8601）"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "完成階段的時間（ISO 8601，可選）"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["in_progress", "completed", "awaiting_confirmation"],
+            "description": "階段狀態"
+          },
+          "deliverable": {
+            "type": "string",
+            "description": "階段產出檔案路徑（可選）"
+          },
+          "deliverables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "階段產出檔案路徑列表（可選）"
+          }
+        }
+      }
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "最後更新時間（ISO 8601）"
+    },
+    "contract_file": {
+      "type": "string",
+      "description": "contract.json 檔案路徑"
+    },
+    "amendments_file": {
+      "type": "string",
+      "description": "amendments.md 檔案路徑"
+    },
+    "completed_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "已完成步驟列表（可選）"
+    },
+    "blocking_issues": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "阻塞問題列表（可選）"
+    },
+    "test_hashes": {
+      "type": "object",
+      "description": "測試檔案 Hash 記錄（用於測試鎖定機制）",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$",
+        "description": "SHA-256 Hash 值"
+      }
+    },
+    "diagnosis_deliverables": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "DIAGNOSIS 階段產出檔案列表（可選）"
+    }
+  },
+  "additionalProperties": false
+}
+
