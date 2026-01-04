@@ -6,7 +6,7 @@ echo ========================================
 echo.
 
 REM 檢查 Python 是否安裝
-echo [1/4] 檢查 Python 環境...
+echo [1/5] 檢查 Python 環境...
 python --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo    Python 未安裝，正在嘗試自動安裝...
@@ -38,7 +38,7 @@ echo    ✓ Python 已安裝
 
 REM 檢查 pip 是否可用
 echo.
-echo [2/4] 檢查 pip...
+echo [2/5] 檢查 pip...
 python -m pip --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo    ⚠️  pip 不可用，請檢查 Python 安裝
@@ -49,7 +49,7 @@ echo    ✓ pip 可用
 
 REM 安裝 jsonschema（如果需要）
 echo.
-echo [3/4] 安裝依賴項（jsonschema）...
+echo [3/5] 安裝依賴項（jsonschema）...
 python -m pip install jsonschema --quiet --disable-pip-version-check
 if %errorlevel% neq 0 (
     echo    ⚠️  依賴項安裝失敗，但將繼續執行
@@ -57,11 +57,41 @@ if %errorlevel% neq 0 (
     echo    ✓ jsonschema 已安裝
 )
 
+REM 檢查並下載 uadp-setup.py（如果需要）
+echo.
+echo [4/5] 檢查 UADP 初始化引擎...
+if exist "scripts\uadp-setup.py" (
+    echo    ✓ 找到本地初始化引擎
+    set SETUP_SCRIPT=scripts\uadp-setup.py
+) else if exist "uadp-setup.py" (
+    echo    ✓ 找到本地初始化引擎
+    set SETUP_SCRIPT=uadp-setup.py
+) else (
+    echo    正在從 GitHub 獲取 UADP 初始化引擎...
+    echo    這可能需要幾秒鐘，請稍候...
+    echo.
+    
+    REM 嘗試下載腳本
+    curl -L -o uadp-setup.py https://raw.githubusercontent.com/OG-Matcha/UADP/main/scripts/uadp-setup.py
+    
+    if %errorlevel% neq 0 (
+        echo.
+        echo    ❌ 下載失敗，請檢查網路連線
+        echo    或手動下載: https://raw.githubusercontent.com/OG-Matcha/UADP/main/scripts/uadp-setup.py
+        echo.
+        pause
+        exit /b 1
+    )
+    
+    echo    ✓ 初始化引擎下載完成
+    set SETUP_SCRIPT=uadp-setup.py
+)
+
 REM 執行 UADP 初始化腳本
 echo.
-echo [4/4] 執行 UADP 初始化...
+echo [5/5] 執行 UADP 初始化...
 echo.
-python scripts/uadp-setup.py
+python %SETUP_SCRIPT%
 
 if %errorlevel% neq 0 (
     echo.

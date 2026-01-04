@@ -10,7 +10,7 @@ echo "========================================"
 echo ""
 
 # 檢查 python3 是否可用
-echo "[1/4] 檢查 Python 環境..."
+echo "[1/5] 檢查 Python 環境..."
 if ! command -v python3 &> /dev/null; then
     echo "   Python3 未安裝"
     echo ""
@@ -42,7 +42,7 @@ echo "   ✓ Python3 已安裝"
 
 # 檢查 pip3 是否可用
 echo ""
-echo "[2/4] 檢查 pip..."
+echo "[2/5] 檢查 pip..."
 if ! command -v pip3 &> /dev/null; then
     echo "   ⚠️  pip3 不可用，嘗試使用 python3 -m pip..."
     PIP_CMD="python3 -m pip"
@@ -53,7 +53,7 @@ fi
 
 # 安裝 jsonschema（如果需要）
 echo ""
-echo "[3/4] 安裝依賴項（jsonschema）..."
+echo "[3/5] 安裝依賴項（jsonschema）..."
 $PIP_CMD install jsonschema --quiet --disable-pip-version-check 2>/dev/null
 if [ $? -eq 0 ]; then
     echo "   ✓ jsonschema 已安裝"
@@ -61,11 +61,39 @@ else
     echo "   ⚠️  依賴項安裝失敗，但將繼續執行"
 fi
 
+# 檢查並下載 uadp-setup.py（如果需要）
+echo ""
+echo "[4/5] 檢查 UADP 初始化引擎..."
+if [ -f "scripts/uadp-setup.py" ]; then
+    echo "   ✓ 找到本地初始化引擎"
+    SETUP_SCRIPT="scripts/uadp-setup.py"
+elif [ -f "uadp-setup.py" ]; then
+    echo "   ✓ 找到本地初始化引擎"
+    SETUP_SCRIPT="uadp-setup.py"
+else
+    echo "   正在從 GitHub 獲取 UADP 初始化引擎..."
+    echo "   這可能需要幾秒鐘，請稍候..."
+    echo ""
+    
+    # 嘗試下載腳本
+    if curl -L -o uadp-setup.py https://raw.githubusercontent.com/OG-Matcha/UADP/main/scripts/uadp-setup.py; then
+        echo "   ✓ 初始化引擎下載完成"
+        SETUP_SCRIPT="uadp-setup.py"
+    else
+        echo ""
+        echo "   ❌ 下載失敗，請檢查網路連線"
+        echo "   或手動下載: https://raw.githubusercontent.com/OG-Matcha/UADP/main/scripts/uadp-setup.py"
+        echo ""
+        read -p "按 Enter 鍵退出..."
+        exit 1
+    fi
+fi
+
 # 執行 UADP 初始化腳本
 echo ""
-echo "[4/4] 執行 UADP 初始化..."
+echo "[5/5] 執行 UADP 初始化..."
 echo ""
-python3 scripts/uadp-setup.py
+python3 "$SETUP_SCRIPT"
 
 if [ $? -ne 0 ]; then
     echo ""

@@ -96,25 +96,33 @@ UADP 是一個**元框架（Meta-Framework）**，它為 Cursor IDE 提供了一
 
 #### 方式一：一鍵啟動（推薦）✨
 
-**最簡單的方式，直接雙擊啟動檔案即可！**
+**最簡單的方式，只需一個檔案就能啟動！**
 
 **Windows 使用者：**
-1. 雙擊 `UADP-Windows開始.bat`
-2. 腳本會自動檢查並安裝 Python（如需要）
-3. 等待初始化完成
+1. 下載啟動檔：[UADP-Windows開始.bat](https://raw.githubusercontent.com/OG-Matcha/UADP/main/UADP-Windows開始.bat)
+2. 將檔案放到你的專案資料夾中
+3. 雙擊 `UADP-Windows開始.bat`
+4. 腳本會自動下載初始化引擎並完成設定
 
 **macOS/Linux 使用者：**
-1. 雙擊 `UADP-macOS開始.command`（macOS）或執行 `bash UADP-macOS開始.command`（Linux）
-2. 如提示需要安裝開發者工具，請點擊「安裝」
-3. 等待初始化完成
+1. 下載啟動檔：[UADP-macOS開始.command](https://raw.githubusercontent.com/OG-Matcha/UADP/main/UADP-macOS開始.command)
+2. 將檔案放到你的專案資料夾中
+3. 雙擊 `UADP-macOS開始.command`（macOS）或執行 `bash UADP-macOS開始.command`（Linux）
+4. 腳本會自動下載初始化引擎並完成設定
 
 **腳本會自動：**
 - ✅ 檢查並安裝 Python（如需要）
+- ✅ 從 GitHub 下載初始化引擎（如本地不存在）
 - ✅ 安裝必要的依賴項（jsonschema）
 - ✅ 建立 `.uadp/` 目錄結構（adapters, schemas, logs）
 - ✅ 建立 `.cursor/rules/` 目錄與三個核心規則檔案
 - ✅ 初始化 `state.json`（設為 PLANNING 階段）
 - ✅ 建立 `amendments.md` 與 `decisions.md` 模板
+
+**💡 零門檻特色：**
+- **無需 Git Clone**：只需下載一個啟動檔即可
+- **自動下載**：初始化引擎會自動從 GitHub 下載
+- **完全獨立**：即使在空白資料夾中也能正常運作
 
 **完成後，直接在 Cursor 中啟動蘇格拉底模式：**
 
