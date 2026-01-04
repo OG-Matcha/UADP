@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 """
 UADP Framework Setup Script
-自給自足的 UADP 框架初始化腳本
+動態流式安裝器 - 從 GitHub 獲取最新版本的核心資產
 
-此腳本會自動建立整個 UADP 目錄結構與初始模板檔案。
+此腳本會自動從 GitHub 下載最新的 UADP 框架檔案，確保版本同步。
+
+版本: 2.0 (動態流式安裝器)
+最後更新: 2026-01-04
 """
 
 import os
 import json
+import sys
+import urllib.request
+import urllib.error
 from pathlib import Path
 from datetime import datetime
 
@@ -16,9 +22,28 @@ PROJECT_ROOT = Path.cwd()
 UADP_DIR = PROJECT_ROOT / ".uadp"
 CURSOR_RULES_DIR = PROJECT_ROOT / ".cursor" / "rules"
 
+# GitHub Raw URL
+REPO_RAW_URL = "https://raw.githubusercontent.com/OG-Matcha/UADP/main/"
+
 # 當前日期（ISO 8601 格式）
 CURRENT_DATE = datetime.now().strftime("%Y-%m-%dT00:00:00Z")
 CURRENT_DATE_SHORT = datetime.now().strftime("%Y-%m-%d")
+
+# 需要從 GitHub 下載的檔案清單（MANIFEST）
+MANIFEST = [
+    # 核心規則檔案
+    ".cursor/rules/uadp-core.mdc",
+    ".cursor/rules/uadp-agent-roles.mdc",
+    ".cursor/rules/uadp-qa-standard.mdc",
+    # 適配器模板
+    ".uadp/adapters/README.md",
+    ".uadp/adapters/mobile-flutter.mdc",
+    ".uadp/adapters/web-modern.mdc",
+    ".uadp/adapters/backend-api.mdc",
+    # JSON Schema
+    ".uadp/schemas/state.schema.json",
+    ".uadp/schemas/contract.schema.json",
+]
 
 
 def ensure_dir(path: Path):
@@ -35,9 +60,36 @@ def write_file(path: Path, content: str):
     print(f"  ✓ {path.relative_to(PROJECT_ROOT)}")
 
 
+def download_file(remote_path: str, local_path: Path) -> bool:
+    """
+    從 GitHub 下載檔案
+    
+    Args:
+        remote_path: GitHub 上的檔案路徑（相對於倉庫根目錄）
+        local_path: 本地儲存路徑
+    
+    Returns:
+        bool: 下載是否成功
+    """
+    url = REPO_RAW_URL + remote_path
+    try:
+        with urllib.request.urlopen(url, timeout=30) as response:
+            content = response.read().decode('utf-8')
+            write_file(local_path, content)
+            return True
+    except urllib.error.URLError as e:
+        print(f"  ❌ 下載失敗: {remote_path}")
+        print(f"     錯誤: {e}")
+        return False
+    except Exception as e:
+        print(f"  ❌ 下載失敗: {remote_path}")
+        print(f"     錯誤: {e}")
+        return False
+
+
 def setup_directories():
     """建立目錄結構"""
-    print("\n[1/4] 建立目錄結構...")
+    print("\n[1/5] 建立目錄結構...")
     
     ensure_dir(UADP_DIR / "adapters")
     ensure_dir(UADP_DIR / "schemas")
@@ -48,7 +100,7 @@ def setup_directories():
 
 
 def setup_state_json():
-    """建立 state.json"""
+    """建立 state.json（本地生成，包含正確的時間戳記）"""
     state_content = {
         "current_phase": "PLANNING",
         "phase_history": [
@@ -69,7 +121,7 @@ def setup_state_json():
 
 
 def setup_amendments_md():
-    """建立 amendments.md"""
+    """建立 amendments.md（本地生成，包含正確的時間戳記）"""
     content = """# UADP 自主修正紀錄
 
 > 此檔案記錄所有在 [IMPLEMENTATION] 階段中，未經使用者預先核准的技術變更與修正決策。
@@ -94,7 +146,7 @@ _目前尚無修正紀錄_
 
 
 def setup_decisions_md():
-    """建立 decisions.md"""
+    """建立 decisions.md（本地生成，包含正確的時間戳記）"""
     content = """# UADP 技術決策紀錄
 
 > 此檔案記錄專案開發過程中的重大技術決策與選擇理由。
@@ -108,622 +160,86 @@ _目前尚無決策紀錄_
     write_file(UADP_DIR / "logs" / "decisions.md", content)
 
 
-def setup_core_rules():
-    """建立核心規則檔案"""
-    print("\n[2/4] 建立核心規則檔案...")
+def download_core_assets():
+    """從 GitHub 下載所有核心資產"""
+    print("\n[2/5] 從 GitHub 獲取最新核心資產...")
+    print("  正在連線到 GitHub...")
     
-    # uadp-core.mdc
-    uadp_core = """---
-alwaysApply: true
----
-# UADP 核心憲法：通用 AI 開發協議 v1.0
-
-> **檔案路徑：** `.cursor/rules/uadp-core.mdc`
-> **適用範圍：** 全專案所有檔案 `*.*`
-> **優先級：** 最高 (Critical)
-
-## 1. 系統聲明
-你現在是 **UADP (Universal AI Development Protocol)** 框架下的自動化代理人。你的目標是將使用者的模糊意圖轉化為高品質、可驗證的完整產品。你必須展現出專業開發者的主動性，而非僅僅是被動回應。
-
----
-
-## 2. 開發生命週期 (SDLC) 狀態機
-你必須嚴格遵守以下階段，並在 `.uadp/state.json` 記錄當前狀態。除非前一階段產出已確認，否則不得跳躍：
-
-1. **[PLANNING] (蘇格拉底模式)**：
-   - **任務**：禁止寫程式碼。透過詰問釐清需求，區分「核心約束 (Hard Constraints)」與「技術自由度」。
-   - **產出**：`.uadp/contract.json`。
-2. **[DIAGNOSIS] (環境診斷)**：
-   - **任務**：檢查當前技術棧、依賴項、環境變數。
-   - **產出**：環境狀態報告，必要時引導使用者執行 setup 腳本。
-3. **[IMPLEMENTATION] (自主開發)**：
-   - **任務**：進入 Coder 與 QA 的閉環。自動編寫代碼、自動跑測試。
-   - **產出**：通過驗證的原始碼。
-4. **[AUDIT] (審計驗收)**：
-   - **任務**：產出白話報告與 Preview，列出所有自主修正項。
-   - **產出**：`.uadp/amendments.md`。
-
----
-
-## 3. 核心行為準則
-
-### A. 自主修正協議 (Pivot & Execute)
-當你在 [IMPLEMENTATION] 階段遇到技術障礙（例如：套件衝突、邏輯悖論）時：
-- **優先行動**：以「系統穩定性」與「技術最適解」為第一優先。允許自主修改已鎖定的測試或需求細節，以確保專案持續推進。
-- **搜尋強制**：若連續兩次修復失敗，必須強制執行 `@Web` 搜尋最新解決方案，禁止盲目重試。
-- **紀錄追蹤**：所有未經使用者預先核准的變更，必須即時寫入 `.uadp/amendments.md`。
-  - 格式：`[AMENDMENT] 原因: <描述> | 做法: <方案> | 影響: <對功能的改變>`。
-
-### B. 測試鎖定機制 (Test Guard)
-- 在進入開發前，必須先由 QA 角色產出測試案例。
-- 除非觸發「自主修正協議」，否則嚴禁為了讓測試通過而修改測試邏輯。
-- 測試必須包含：邏輯邊界、錯誤路徑、UI 可見性。
-
----
-
-## 4. 角色定義與轉換指令
-
-當對話中出現指令或狀態變更時，請切換至對應模式：
-
-| 指令觸發 | 邏輯角色 | 行為限制 |
-| :--- | :--- | :--- |
-| `[MODE: ARCHITECT]` | 架構師 | 專注於邏輯拆解與規格定義。嚴禁實作代碼。 |
-| `[MODE: CODER]` | 工程師 | 負責實作。必須追求 Clean Code、效能與可維護性。 |
-| `[MODE: QA]` | 測試員 | 負責撰寫測試與 E2E 驗證。行為必須像嚴苛的品質監管員。 |
-| `[MODE: AUDITOR]` | 審計員 | 負責將技術變更翻譯為白話報告，與使用者對齊期望。 |
-
----
-
-## 5. 檔案操作與記憶規範
-- **進度同步**：每次對話結束或切換任務前，必須更新 `.uadp/state.json`。
-- **決策紀錄**：重大技術決策（如：為什麼選用某套件）必須記錄於 `.uadp/logs/decisions.md`。
-- **原子操作**：在執行大規模修改前，應提示使用者進行 Git Commit 或自行備份關鍵檔案。
-- **使用者干預**：若偵測到使用者輸入「STOP」或「RESET」，應立即停止自動化流程並回報當前狀態。
-"""
-    write_file(CURSOR_RULES_DIR / "uadp-core.mdc", uadp_core)
+    success_count = 0
+    fail_count = 0
     
-    # uadp-agent-roles.mdc (簡化版，完整內容請參考原始檔案)
-    uadp_agent_roles = """---
-alwaysApply: true
----
-# UADP 角色行為定義：Agent Roles
-
-> **檔案路徑：** `.cursor/rules/uadp-agent-roles.mdc`  
-> **適用範圍：** 全專案所有檔案 `*.*`  
-> **優先級：** 高 (High)  
-> **依賴：** 需與 `uadp-core.mdc` 配合使用
-
----
-
-## 1. 角色切換機制
-
-當對話中出現以下指令或狀態變更時，你必須立即切換至對應角色模式：
-
-| 指令觸發 | 邏輯角色 | 行為限制 | 核心職責 |
-| :--- | :--- | :--- | :--- |
-| `[MODE: ARCHITECT]` | 架構師 | **嚴禁實作代碼** | 邏輯拆解、規格定義、需求釐清 |
-| `[MODE: CODER]` | 工程師 | **禁止修改測試檔案** | 代碼實作、Clean Code、效能優化 |
-| `[MODE: QA]` | 測試員 | **禁止修改實作代碼** | 測試撰寫、品質驗證、邊界測試 |
-| `[MODE: AUDITOR]` | 審計員 | **禁止實作與測試** | 白話報告、變更追蹤、決策審查 |
-
----
-
-## 2. [MODE: ARCHITECT] 架構師行為規範
-
-### 2.1 核心職責
-- **需求釐清**：使用蘇格拉底詰問法，區分「核心約束」與「技術自由度」
-- **規格定義**：產出 `.uadp/contract.json`，明確功能邊界與驗收標準
-- **架構設計**：定義資料結構、模組劃分、介面契約
-- **決策記錄**：重大技術決策記錄於 `.uadp/logs/decisions.md`
-
-### 2.2 嚴格禁止
-- ❌ **禁止寫任何程式碼**（包括偽代碼、範例代碼）
-- ❌ **禁止直接修改實作檔案**
-- ❌ **禁止跳過需求釐清直接進入實作**
-
----
-
-## 3. [MODE: CODER] 工程師行為規範
-
-### 3.1 核心職責
-- **代碼實作**：根據 `contract.json` 與架構設計實作功能
-- **Clean Code**：追求可讀性、可維護性、效能
-- **自主修正**：遇到技術障礙時，遵循「自主修正協議」
-- **狀態同步**：每次完成任務後更新 `.uadp/state.json`
-
-### 3.2 嚴格禁止
-- ❌ **禁止修改 `tests/` 目錄下的任何檔案**（除非觸發自主修正協議）
-- ❌ **禁止為了讓測試通過而修改測試邏輯**
-- ❌ **禁止跳過測試直接提交代碼**
-
----
-
-## 4. [MODE: QA] 測試員行為規範
-
-### 4.1 核心職責
-- **測試生成**：在開發前產出可執行的測試檔案
-- **品質驗證**：執行測試並驗證功能正確性
-- **邊界測試**：涵蓋邏輯邊界、錯誤路徑、UI 可見性
-- **測試鎖定**：生成測試後，記錄 Hash 至 `state.json`
-
-### 4.2 嚴格禁止
-- ❌ **禁止修改實作代碼**（只能建議，不能直接修改）
-- ❌ **禁止在測試通過後修改測試邏輯**（除非觸發自主修正協議）
-- ❌ **禁止生成無法執行的測試檔案**
-
----
-
-## 5. [MODE: AUDITOR] 審計員行為規範
-
-### 5.1 核心職責
-- **白話報告**：將技術變更翻譯為非技術者能理解的語言
-- **變更追蹤**：記錄所有自主修正項至 `.uadp/amendments.md`
-- **決策審查**：審查技術決策是否符合 `contract.json` 的約束
-- **Preview 產出**：生成可視化的預覽報告
-
-### 5.2 嚴格禁止
-- ❌ **禁止實作代碼**
-- ❌ **禁止撰寫測試**
-- ❌ **禁止直接修改實作檔案**
-
----
-
-**最後更新：** """ + CURRENT_DATE_SHORT + """  
-**版本：** 1.0
-"""
-    write_file(CURSOR_RULES_DIR / "uadp-agent-roles.mdc", uadp_agent_roles)
-    
-    # uadp-qa-standard.mdc (簡化版，完整內容請參考原始檔案)
-    uadp_qa_standard = """---
-alwaysApply: true
----
-# UADP QA 標準：測試鎖定與驗證邏輯
-
-> **檔案路徑：** `.cursor/rules/uadp-qa-standard.mdc`  
-> **適用範圍：** 測試相關檔案 `tests/**`, `**/*.test.*`, `**/*.spec.*`  
-> **優先級：** 最高 (Critical)  
-> **依賴：** 需與 `uadp-core.mdc` 和 `uadp-agent-roles.mdc` 配合使用
-
----
-
-## 1. 測試鎖定機制（Test Guard）核心原則
-
-### 1.1 權力分離（Separation of Powers）
-- **QA 角色**：唯一有權生成與修改測試檔案的角色
-- **Coder 角色**：無權修改 `tests/` 目錄下的任何檔案
-- **Auditor 角色**：負責審計測試變更，記錄至 `amendments.md`
-
-### 1.2 對抗性設計（Adversarial Design）
-- QA 與 Coder 在邏輯上處於「對抗關係」
-- QA 的目標是「找出代碼缺陷」，而非「讓測試通過」
-- Coder 的目標是「通過測試」，而非「修改測試邏輯」
-
-### 1.3 雜湊鎖定（Hash Locking）
-- 測試檔案生成後，計算 SHA-256 Hash
-- Hash 記錄於 `.uadp/state.json` 的 `test_hashes` 欄位
-- 任何對測試檔案的修改都必須更新 Hash，並記錄理由
-
----
-
-## 2. 測試生成標準
-
-### 2.1 測試生成時機
-- **必須在實作前生成**：QA 角色必須在 Coder 開始實作前產出測試檔案
-- **基於 contract.json**：測試必須對應 `contract.json` 中的 `milestones` 與 `acceptance_criteria`
-- **涵蓋所有驗收標準**：每個驗收標準都必須有對應的測試案例
-
-### 2.2 測試覆蓋範圍
-測試必須包含以下類型：
-1. **邏輯邊界測試**：空值、極值、邊界條件
-2. **錯誤路徑測試**：異常輸入、網路錯誤、權限錯誤
-3. **UI 可見性測試**：元素渲染、互動回饋、錯誤提示
-4. **整合測試**：模組間互動、資料流、狀態同步
-
----
-
-**最後更新：** """ + CURRENT_DATE_SHORT + """  
-**版本：** 1.0
-"""
-    write_file(CURSOR_RULES_DIR / "uadp-qa-standard.mdc", uadp_qa_standard)
-
-
-def setup_adapters():
-    """建立適配器模板"""
-    print("\n[3/4] 建立適配器模板...")
-    
-    # adapters/README.md
-    adapters_readme = """# UADP 適配器目錄
-
-> 此目錄存放技術棧適配器模板，用於引導 AI 學習特定技術棧的最佳實踐。
-
----
-
-## 適配器結構
-
-每個適配器應包含：
-- **適配器規則檔案**（`.mdc` 或 `.md`）：定義技術棧特定的開發規範
-- **測試框架配置**：指定測試框架與命令
-- **最佳實踐指南**：技術棧特定的編碼標準
-
----
-
-## 預設適配器
-
-### mobile-flutter
-Flutter 行動應用開發適配器
-
-### web-modern
-現代 Web 開發適配器（React/Vite）
-
-### backend-api
-後端 API 開發適配器（Node.js/Python）
-
----
-
-## 使用方式
-
-適配器由 UADP 框架自動偵測或透過 [DIAGNOSIS] 階段對話引導選擇。
-
-AI 會讀取適配器模板，學習該技術棧的：
-- 最佳實踐
-- 測試命令
-- 編碼規範
-- 專案結構
-
----
-
-**最後更新：** """ + CURRENT_DATE_SHORT + """
-"""
-    write_file(UADP_DIR / "adapters" / "README.md", adapters_readme)
-    
-    # 適配器檔案（簡化版，完整內容請從框架倉庫複製）
-    # 這裡只建立基本結構，完整適配器內容建議從 UADP 框架倉庫複製
-    print("  ⚠️  注意：適配器檔案（mobile-flutter.mdc, web-modern.mdc, backend-api.mdc）")
-    print("     請從 UADP 框架倉庫複製完整內容，或使用框架倉庫的完整版本。")
-
-
-def setup_schemas():
-    """建立 JSON Schema"""
-    print("\n[4/4] 建立 JSON Schema...")
-    
-    # state.schema.json (完整版)
-    state_schema = {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "$id": "https://uadp.dev/schemas/state.schema.json",
-        "title": "UADP State Schema",
-        "description": "UADP 狀態機 JSON Schema，定義 state.json 的結構與驗證規則",
-        "type": "object",
-        "required": [
-            "current_phase",
-            "phase_history",
-            "last_updated",
-            "contract_file",
-            "amendments_file"
-        ],
-        "properties": {
-            "current_phase": {
-                "type": "string",
-                "enum": ["PLANNING", "DIAGNOSIS", "IMPLEMENTATION", "AUDIT"],
-                "description": "當前 SDLC 階段"
-            },
-            "phase_history": {
-                "type": "array",
-                "description": "階段歷史記錄",
-                "items": {
-                    "type": "object",
-                    "required": ["phase", "entered_at", "status"],
-                    "properties": {
-                        "phase": {
-                            "type": "string",
-                            "enum": ["PLANNING", "DIAGNOSIS", "IMPLEMENTATION", "AUDIT"]
-                        },
-                        "entered_at": {
-                            "type": "string",
-                            "format": "date-time",
-                            "description": "進入階段的時間（ISO 8601）"
-                        },
-                        "completed_at": {
-                            "type": "string",
-                            "format": "date-time",
-                            "description": "完成階段的時間（ISO 8601，可選）"
-                        },
-                        "status": {
-                            "type": "string",
-                            "enum": ["in_progress", "completed", "awaiting_confirmation"],
-                            "description": "階段狀態"
-                        },
-                        "deliverable": {
-                            "type": "string",
-                            "description": "階段產出檔案路徑（可選）"
-                        },
-                        "deliverables": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            },
-                            "description": "階段產出檔案路徑列表（可選）"
-                        }
-                    }
-                }
-            },
-            "last_updated": {
-                "type": "string",
-                "format": "date-time",
-                "description": "最後更新時間（ISO 8601）"
-            },
-            "contract_file": {
-                "type": "string",
-                "description": "contract.json 檔案路徑"
-            },
-            "amendments_file": {
-                "type": "string",
-                "description": "amendments.md 檔案路徑"
-            },
-            "completed_steps": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                },
-                "description": "已完成步驟列表（可選）"
-            },
-            "blocking_issues": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                },
-                "description": "阻塞問題列表（可選）"
-            },
-            "test_hashes": {
-                "type": "object",
-                "description": "測試檔案 Hash 記錄（用於測試鎖定機制）",
-                "additionalProperties": {
-                    "type": "string",
-                    "pattern": "^[a-f0-9]{64}$",
-                    "description": "SHA-256 Hash 值"
-                }
-            },
-            "diagnosis_deliverables": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                },
-                "description": "DIAGNOSIS 階段產出檔案列表（可選）"
-            }
-        },
-        "additionalProperties": False
+    # 顯示進度提示的對應表
+    progress_messages = {
+        ".cursor/rules/uadp-core.mdc": "正在獲取最新核心憲法...",
+        ".cursor/rules/uadp-agent-roles.mdc": "正在獲取角色行為定義...",
+        ".cursor/rules/uadp-qa-standard.mdc": "正在獲取 QA 標準...",
+        ".uadp/adapters/README.md": "正在獲取適配器說明...",
+        ".uadp/adapters/mobile-flutter.mdc": "正在獲取 Flutter 適配器...",
+        ".uadp/adapters/web-modern.mdc": "正在獲取 Web 適配器...",
+        ".uadp/adapters/backend-api.mdc": "正在獲取後端 API 適配器...",
+        ".uadp/schemas/state.schema.json": "正在獲取狀態 Schema...",
+        ".uadp/schemas/contract.schema.json": "正在獲取契約 Schema...",
     }
     
-    write_file(UADP_DIR / "schemas" / "state.schema.json", 
-               json.dumps(state_schema, ensure_ascii=False, indent=2))
+    for remote_path in MANIFEST:
+        local_path = PROJECT_ROOT / remote_path
+        
+        # 顯示進度提示
+        message = progress_messages.get(remote_path, f"正在下載 {remote_path}...")
+        print(f"  {message}")
+        
+        if download_file(remote_path, local_path):
+            success_count += 1
+        else:
+            fail_count += 1
     
-    # contract.schema.json (完整版)
-    contract_schema = {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "$id": "https://uadp.dev/schemas/contract.schema.json",
-        "title": "UADP Contract Schema",
-        "description": "UADP 契約 JSON Schema，定義 contract.json 的結構與驗證規則",
-        "type": "object",
-        "required": [
-            "contract_version",
-            "created_at",
-            "project_type",
-            "metadata",
-            "requirements",
-            "milestones"
-        ],
-        "properties": {
-            "contract_version": {
-                "type": "string",
-                "pattern": "^\\d+\\.\\d+$",
-                "description": "契約版本號（格式：major.minor）"
-            },
-            "created_at": {
-                "type": "string",
-                "format": "date-time",
-                "description": "契約建立時間（ISO 8601）"
-            },
-            "project_type": {
-                "type": "string",
-                "description": "專案類型（如：framework_package, web_app, mobile_app）"
-            },
-            "metadata": {
-                "type": "object",
-                "required": ["project_name", "description"],
-                "properties": {
-                    "project_name": {
-                        "type": "string",
-                        "description": "專案名稱"
-                    },
-                    "description": {
-                        "type": "string",
-                        "description": "專案描述"
-                    },
-                    "target_users": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "description": "目標使用者列表"
-                    },
-                    "technology_stack": {
-                        "type": "object",
-                        "properties": {
-                            "core": {
-                                "type": "string"
-                            },
-                            "auxiliary_scripts": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                }
-                            },
-                            "integration_points": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    }
-                },
-                "additionalProperties": True
-            },
-            "requirements": {
-                "type": "object",
-                "required": ["hard_constraints", "technical_freedom"],
-                "properties": {
-                    "hard_constraints": {
-                        "type": "object",
-                        "description": "核心約束（不可變的約束條件）",
-                        "properties": {
-                            "environment": {
-                                "type": "object"
-                            },
-                            "sdlc_phases": {
-                                "type": "object"
-                            },
-                            "test_guard": {
-                                "type": "object"
-                            },
-                            "autonomous_amendment": {
-                                "type": "object"
-                            }
-                        },
-                        "additionalProperties": True
-                    },
-                    "technical_freedom": {
-                        "type": "object",
-                        "description": "技術自由度（可選擇的技術方案）",
-                        "additionalProperties": True
-                    }
-                },
-                "additionalProperties": False
-            },
-            "milestones": {
-                "type": "object",
-                "description": "階段性任務與驗收標準",
-                "patternProperties": {
-                    "^phase_\\d+_.+$": {
-                        "type": "object",
-                        "required": ["status"],
-                        "properties": {
-                            "status": {
-                                "type": "string",
-                                "enum": ["pending", "in_progress", "completed"]
-                            },
-                            "deliverables": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                }
-                            },
-                            "acceptance_criteria": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                }
-                            },
-                            "decisions": {
-                                "type": "object",
-                                "description": "階段決策記錄",
-                                "additionalProperties": True
-                            }
-                        },
-                        "additionalProperties": True
-                    }
-                },
-                "additionalProperties": False
-            },
-            "problem_statement": {
-                "type": "object",
-                "properties": {
-                    "core_issues": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "existing_solutions_limitations": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "additionalProperties": True
-            },
-            "design_rationale": {
-                "type": "object",
-                "description": "設計理由說明",
-                "additionalProperties": {
-                    "type": "string"
-                }
-            },
-            "open_questions": {
-                "type": "array",
-                "items": {
-                    "oneOf": [
-                        {
-                            "type": "string"
-                        },
-                        {
-                            "type": "object",
-                            "properties": {
-                                "question": {
-                                    "type": "string"
-                                },
-                                "status": {
-                                    "type": "string",
-                                    "enum": ["pending", "resolved"]
-                                },
-                                "resolution": {
-                                    "type": "string"
-                                },
-                                "documented_in": {
-                                    "type": "string"
-                                }
-                            },
-                            "required": ["question", "status"]
-                        }
-                    ]
-                }
-            }
-        },
-        "additionalProperties": False
-    }
+    print(f"\n  ✓ 下載完成: {success_count} 個檔案成功")
+    if fail_count > 0:
+        print(f"  ⚠️  下載失敗: {fail_count} 個檔案")
+        print("\n  💡 提示：")
+        print("     - 請檢查網路連線")
+        print("     - 確認可以訪問 GitHub")
+        print("     - 如果問題持續，請手動從以下連結下載：")
+        print(f"       {REPO_RAW_URL}")
+        return False
     
-    write_file(UADP_DIR / "schemas" / "contract.schema.json",
-               json.dumps(contract_schema, ensure_ascii=False, indent=2))
-    
-    print("  ✓ Schema 檔案已建立（完整版）")
+    return True
 
 
 def main():
     """主函式"""
     print("=" * 60)
-    print("UADP Framework Setup")
+    print("UADP Framework Setup - 動態流式安裝器")
     print("=" * 60)
     print(f"\n專案根目錄: {PROJECT_ROOT}")
     print(f"初始化時間: {CURRENT_DATE_SHORT}")
+    print(f"GitHub 倉庫: {REPO_RAW_URL}")
     
     try:
         # 建立目錄結構
         setup_directories()
         
-        # 建立初始檔案
-        print("\n建立初始檔案...")
+        # 建立初始檔案（本地生成，包含正確的時間戳記）
+        print("\n[3/5] 建立初始檔案...")
         setup_state_json()
         setup_amendments_md()
         setup_decisions_md()
+        print("  ✓ 初始檔案建立完成")
         
-        # 建立核心規則
-        setup_core_rules()
+        # 從 GitHub 下載核心資產
+        download_success = download_core_assets()
         
-        # 建立適配器
-        setup_adapters()
-        
-        # 建立 Schema
-        setup_schemas()
+        if not download_success:
+            print("\n" + "=" * 60)
+            print("⚠️  部分檔案下載失敗")
+            print("=" * 60)
+            print("\n📋 建議：")
+            print("   1. 檢查網路連線")
+            print("   2. 確認可以訪問 GitHub")
+            print("   3. 重新執行此腳本")
+            print(f"   4. 或手動從 {REPO_RAW_URL} 下載缺失的檔案")
+            print("\n   即使部分檔案下載失敗，已下載的檔案仍可使用。")
+            return 1
         
         # 完成訊息
         print("\n" + "=" * 60)
@@ -734,11 +250,13 @@ def main():
         print("   2. 告訴 AI: '[MODE: ARCHITECT] 我想做一個 [你的專案想法]'")
         print("   3. AI 會用蘇格拉底詰問法幫你釐清需求")
         print("\n💡 提示：")
-        print("   - 完整適配器檔案請從 UADP 框架倉庫複製")
-        print("   - 完整 Schema 檔案請從 UADP 框架倉庫複製")
+        print("   - 所有核心資產已從 GitHub 獲取最新版本")
         print("   - 詳細文件請參考: https://github.com/OG-Matcha/UADP")
         print("\n")
         
+    except KeyboardInterrupt:
+        print("\n\n⚠️  使用者中斷操作")
+        return 1
     except Exception as e:
         print(f"\n❌ 初始化失敗: {e}")
         import traceback
@@ -750,4 +268,3 @@ def main():
 
 if __name__ == "__main__":
     exit(main())
-
