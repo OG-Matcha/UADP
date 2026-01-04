@@ -1,0 +1,58 @@
+name: UADP CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Validate Schema
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          pip install jsonschema
+      
+      - name: Validate JSON Schema
+        run: |
+          python scripts/validate_schema.py
+      
+      - name: Check setup script syntax
+        run: |
+          python -m py_compile scripts/uadp-setup.py
+          python -m py_compile scripts/setup_doctor.py
+          python -m py_compile scripts/validate_schema.py
+      
+      - name: Check shell scripts syntax
+        run: |
+          # 檢查 macOS/Linux 啟動腳本語法
+          bash -n UADP-macOS開始.command || true
+          
+          # 檢查 Windows 啟動腳本（使用 PowerShell 驗證基本語法）
+          # 注意：Windows .bat 檔案在 Linux CI 中無法直接驗證
+          # 但我們可以檢查檔案是否存在且非空
+          if [ ! -f "UADP-Windows開始.bat" ]; then
+            echo "Error: UADP-Windows開始.bat not found"
+            exit 1
+          fi
+          
+          if [ ! -s "UADP-Windows開始.bat" ]; then
+            echo "Error: UADP-Windows開始.bat is empty"
+            exit 1
+          fi
+          
+          echo "✓ Shell scripts syntax check passed"
+

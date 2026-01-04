@@ -89,21 +89,38 @@ UADP 是一個**元框架（Meta-Framework）**，它為 Cursor IDE 提供了一
 ### 前置需求
 
 - [Cursor IDE](https://cursor.sh/)（推薦最新版本）
-- Python 3.8+（用於診斷工具）
-- Git（用於版本控制）
+- Python 3.8+（用於診斷工具，**啟動腳本會自動安裝**）
+- Git（用於版本控制，可選）
 
 ### 安裝步驟
 
-#### 1. Clone 專案
+#### 方式一：一鍵啟動（推薦）✨
 
-```bash
-git clone https://github.com/OG-Matcha/UADP.git
-cd UADP
-```
+**最簡單的方式，直接雙擊啟動檔案即可！**
 
-#### 2. 複製框架到你的專案
+**Windows 使用者：**
+1. 雙擊 `UADP-Windows開始.bat`
+2. 腳本會自動檢查並安裝 Python（如需要）
+3. 等待初始化完成
 
-將 UADP 框架複製到你的專案根目錄：
+**macOS/Linux 使用者：**
+1. 雙擊 `UADP-macOS開始.command`（macOS）或執行 `bash UADP-macOS開始.command`（Linux）
+2. 如提示需要安裝開發者工具，請點擊「安裝」
+3. 等待初始化完成
+
+**腳本會自動：**
+- ✅ 檢查並安裝 Python（如需要）
+- ✅ 安裝必要的依賴項（jsonschema）
+- ✅ 建立 `.uadp/` 目錄結構（adapters, schemas, logs）
+- ✅ 建立 `.cursor/rules/` 目錄與三個核心規則檔案
+- ✅ 初始化 `state.json`（設為 PLANNING 階段）
+- ✅ 建立 `amendments.md` 與 `decisions.md` 模板
+
+**完成後，直接在 Cursor 中啟動蘇格拉底模式：**
+
+#### 方式二：手動安裝
+
+如果你需要更多控制，也可以手動複製檔案：
 
 ```bash
 # 複製核心規則
@@ -121,20 +138,9 @@ touch /path/to/your/project/.uadp/contract.json
 touch /path/to/your/project/.uadp/amendments.md
 ```
 
-#### 3. 初始化 UADP
+---
 
-在 Cursor 中開啟你的專案，然後告訴 AI：
-
-```
-請依照 UADP 框架初始化專案
-```
-
-AI 會自動：
-- 建立 `.uadp/` 目錄結構
-- 初始化 `state.json`（設為 PLANNING 階段）
-- 準備模板檔案
-
-#### 4. 啟動蘇格拉底模式
+### 啟動蘇格拉底模式
 
 告訴 AI：
 
@@ -228,8 +234,9 @@ your-project/
 
 ### 文件
 
-- [檔案架構說明](.uadp/FILE_STRUCTURE.md) - 完整的檔案結構與說明
+- [快速啟動指南（小白專用）](.uadp/QUICK_START_GUIDE.md) - 圖解步驟，零技術門檻 ⭐
 - [白話使用者指南](.uadp/user_guide_plain.md) - 給非技術使用者的簡單說明
+- [檔案架構說明](.uadp/FILE_STRUCTURE.md) - 完整的檔案結構與說明
 - [Preview 格式提案](.uadp/preview_format_proposal.md) - Preview 格式定義
 - [白話翻譯模板](.uadp/plain_language_template.md) - 技術變更的白話翻譯模板
 

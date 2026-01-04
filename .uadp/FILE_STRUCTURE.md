@@ -32,6 +32,7 @@ UADP/
 │   │
 │   ├── FILE_STRUCTURE.md            # 本檔案（核心資產）
 │   ├── user_guide_plain.md          # 白話使用者指南（核心資產）
+│   ├── QUICK_START_GUIDE.md         # 快速啟動指南（小白專用）⭐
 │   ├── preview_format_proposal.md  # Preview 格式建議草案（核心資產）
 │   └── plain_language_template.md  # 白話翻譯模板草案（核心資產）
 │   │
@@ -47,9 +48,17 @@ UADP/
 │       ├── uadp-agent-roles.mdc    # 角色行為定義（4 種角色）
 │       └── uadp-qa-standard.mdc    # QA 標準與測試鎖定邏輯
 │
-└── scripts/                         # 輔助工具腳本目錄
-    ├── setup_doctor.py             # 環境診斷工具
-    └── validate_schema.py          # JSON Schema 驗證工具
+├── scripts/                         # 輔助工具腳本目錄
+│   ├── setup_doctor.py             # 環境診斷工具
+│   ├── validate_schema.py          # JSON Schema 驗證工具
+│   └── uadp-setup.py               # 統一啟動腳本
+│
+├── UADP-Windows開始.bat            # Windows 啟動檔（零門檻）
+├── UADP-macOS開始.command          # macOS/Linux 啟動檔（零門檻）
+│
+└── .github/                         # GitHub 配置目錄
+    └── workflows/
+        └── uadp-ci.yml             # CI 工作流配置
 ```
 
 ---
@@ -145,6 +154,14 @@ UADP/
 
 ### 工具腳本（`scripts/`）
 
+#### `uadp-setup.py`
+- **用途：** 統一啟動腳本（自給自足）
+- **功能：**
+  - 自動建立整個 UADP 目錄結構
+  - 建立核心規則檔案與適配器模板
+  - 初始化 `state.json`、`amendments.md`、`decisions.md`
+- **執行：** `python scripts/uadp-setup.py`（或使用啟動檔案）
+
 #### `setup_doctor.py`
 - **用途：** 環境診斷工具
 - **功能：**
@@ -158,6 +175,40 @@ UADP/
 - **用途：** JSON Schema 驗證工具
 - **功能：** 驗證 `state.json` 與 `contract.json` 是否符合 Schema
 - **執行：** `python scripts/validate_schema.py`（需要 `jsonschema` 庫）
+
+---
+
+### 啟動檔案（零門檻）
+
+#### `UADP-Windows開始.bat`
+- **用途：** Windows 一鍵啟動腳本
+- **功能：**
+  - 自動檢查並安裝 Python（如需要）
+  - 自動安裝依賴項（jsonschema）
+  - 執行 UADP 初始化
+- **使用方式：** 直接雙擊檔案即可
+
+#### `UADP-macOS開始.command`
+- **用途：** macOS/Linux 一鍵啟動腳本
+- **功能：**
+  - 檢查 Python3 環境
+  - 引導安裝開發者工具（如需要）
+  - 自動安裝依賴項並執行初始化
+- **使用方式：** 直接雙擊檔案（macOS）或執行 `bash UADP-macOS開始.command`（Linux）
+
+---
+
+### CI 工作流（`.github/workflows/`）
+
+#### `uadp-ci.yml`
+- **用途：** GitHub Actions CI 工作流
+- **觸發條件：** main 分支的 push 或 pull_request
+- **執行步驟：**
+  - 設定 Python 環境
+  - 安裝 jsonschema 依賴
+  - 驗證 JSON Schema
+  - 檢查腳本語法
+  - 檢查 Shell 腳本語法
 
 ---
 
@@ -178,6 +229,10 @@ UADP/
 #### `.uadp/user_guide_plain.md`
 - **用途：** 白話使用者指南（非技術使用者）
 - **內容：** 框架說明、能力介紹、使用步驟、常見問題
+
+#### `.uadp/QUICK_START_GUIDE.md`
+- **用途：** 快速啟動指南（小白專用）⭐
+- **內容：** 圖解步驟、零技術門檻、常見問題解答
 
 #### `.uadp/preview_format_proposal.md`
 - **用途：** Preview 格式建議草案
@@ -205,10 +260,12 @@ UADP/
 | 規則檔案 | 3 | uadp-core.mdc, uadp-agent-roles.mdc, uadp-qa-standard.mdc |
 | 適配器 | 4 | 3 個適配器 + README.md |
 | JSON Schema | 2 | state.schema.json, contract.schema.json |
-| 工具腳本 | 2 | setup_doctor.py, validate_schema.py |
-| 報告文件 | 6 | 診斷報告、審計報告、使用者指南、提案草案 |
+| 工具腳本 | 3 | uadp-setup.py, setup_doctor.py, validate_schema.py |
+| 啟動檔案 | 2 | UADP-Windows開始.bat, UADP-macOS開始.command |
+| CI 工作流 | 1 | uadp-ci.yml |
+| 報告文件 | 7 | 診斷報告、審計報告、使用者指南、快速啟動指南、提案草案 |
 | 決策紀錄 | 1 | decisions.md |
-| **總計** | **21** | |
+| **總計** | **28** | |
 
 ---
 
