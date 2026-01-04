@@ -24,27 +24,20 @@
 
 ### 步驟 1：下載啟動檔案
 
-**方法一：直接下載（推薦）**
-1. 點擊這個連結下載：[UADP-Windows開始.bat](https://raw.githubusercontent.com/OG-Matcha/UADP/main/UADP-Windows開始.bat)
+1. 📥 [點擊下載啟動檔](https://github.com/OG-Matcha/UADP/releases/latest/download/UADP-Windows.bat) `UADP-Windows.bat`
 2. 將下載的檔案放到你的專案資料夾中
-
-**方法二：從 GitHub 下載**
-1. 前往：https://github.com/OG-Matcha/UADP
-2. 點擊 `UADP-Windows開始.bat` 檔案
-3. 點擊右上角的「Raw」按鈕
-4. 按 `Ctrl+S` 儲存檔案到你的專案資料夾
 
 **你的專案資料夾現在應該有：**
 ```
 📁 你的專案資料夾
-  └── 📄 UADP-Windows開始.bat  ← 就是這個！
+  └── 📄 UADP-Windows.bat  ← 就是這個！
 ```
 
 ---
 
 ### 步驟 2：雙擊啟動
 
-1. **用滑鼠左鍵雙擊** `UADP-Windows開始.bat`
+1. **用滑鼠左鍵雙擊** `UADP-Windows.bat`
 
 2. 如果 Windows 問你：
    ```
@@ -80,7 +73,7 @@
 
 **這時你需要：**
 1. 關閉視窗
-2. 再次雙擊 `UADP-Windows開始.bat`
+2. 再次雙擊 `UADP-Windows.bat`
 
 ---
 
@@ -123,24 +116,26 @@
 
 ## 📸 圖解步驟（macOS）
 
-### 步驟 1：找到啟動檔案
+### 步驟 1：下載啟動檔案
 
-在你的專案資料夾中，找到這個檔案：
+1. 📥 [點擊下載啟動檔](https://github.com/OG-Matcha/UADP/releases/latest/download/UADP-macOS.command) `UADP-macOS.command`
+2. 將下載的檔案放到你的專案資料夾中
 
+**你的專案資料夾現在應該有：**
 ```
 📁 你的專案資料夾
-  └── 📄 UADP-macOS開始.command  ← 就是這個！
+  └── 📄 UADP-macOS.command  ← 就是這個！
 ```
 
 ---
 
 ### 步驟 2：雙擊啟動
 
-1. **用滑鼠左鍵雙擊** `UADP-macOS開始.command`
+1. **用滑鼠左鍵雙擊** `UADP-macOS.command`
 
 2. 如果 macOS 問你：
    ```
-   無法打開「UADP-macOS開始.command」，
+   無法打開「UADP-macOS.command」，
    因為它來自未識別的開發者。
    ```
    
@@ -164,7 +159,7 @@ macOS 可能會彈出視窗：
 
 然後：
 1. 等待下載（可能需要 5-10 分鐘）
-2. 安裝完成後，**重新雙擊** `UADP-macOS開始.command`
+2. 安裝完成後，**重新雙擊** `UADP-macOS.command`
 
 ---
 
@@ -217,13 +212,13 @@ macOS 可能會彈出視窗：
 **Windows：**
 ```cmd
 cd C:\你的專案路徑
-UADP-Windows開始.bat
+UADP-Windows.bat
 ```
 
 **macOS：**
 ```bash
 cd /你的專案路徑
-bash UADP-macOS開始.command
+bash UADP-macOS.command
 ```
 
 ---
@@ -252,12 +247,12 @@ bash UADP-macOS開始.command
 **A:** 這表示你需要管理員權限。
 
 **Windows：**
-1. 在 `UADP-Windows開始.bat` 上**右鍵**
+1. 在 `UADP-Windows.bat` 上**右鍵**
 2. 選擇「以系統管理員身分執行」
 
 **macOS：**
 1. 打開「終端機」
-2. 執行：`chmod +x UADP-macOS開始.command`
+2. 執行：`chmod +x UADP-macOS.command`
 3. 重新雙擊檔案
 
 ---

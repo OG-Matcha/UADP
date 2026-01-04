@@ -3,7 +3,7 @@
 > **將 Cursor 從代碼聊天機器人轉化為具備權力制衡、自主修正與標準開發流程的自動化軟體工廠**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/OG-Matcha/UADP/blob/main/LICENSE)
-[![Version: 1.0](https://img.shields.io/badge/Version-1.0-blue.svg)](https://github.com/OG-Matcha/UADP)
+[![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-blue.svg)](https://github.com/OG-Matcha/UADP)
 
 ---
 
@@ -99,15 +99,15 @@ UADP 是一個**元框架（Meta-Framework）**，它為 Cursor IDE 提供了一
 **最簡單的方式，只需一個檔案就能啟動！**
 
 **Windows 使用者：**
-1. 下載啟動檔：[UADP-Windows開始.bat](https://raw.githubusercontent.com/OG-Matcha/UADP/main/UADP-Windows開始.bat)
+1. 📥 [下載啟動檔](https://github.com/OG-Matcha/UADP/releases/latest/download/UADP-Windows.bat) `UADP-Windows.bat`
 2. 將檔案放到你的專案資料夾中
-3. 雙擊 `UADP-Windows開始.bat`
+3. 雙擊 `UADP-Windows.bat`
 4. 腳本會自動下載初始化引擎並完成設定
 
 **macOS/Linux 使用者：**
-1. 下載啟動檔：[UADP-macOS開始.command](https://raw.githubusercontent.com/OG-Matcha/UADP/main/UADP-macOS開始.command)
+1. 📥 [下載啟動檔](https://github.com/OG-Matcha/UADP/releases/latest/download/UADP-macOS.command) `UADP-macOS.command`
 2. 將檔案放到你的專案資料夾中
-3. 雙擊 `UADP-macOS開始.command`（macOS）或執行 `bash UADP-macOS開始.command`（Linux）
+3. 雙擊 `UADP-macOS.command`（macOS）或執行 `bash UADP-macOS.command`（Linux）
 4. 腳本會自動下載初始化引擎並完成設定
 
 **腳本會自動：**

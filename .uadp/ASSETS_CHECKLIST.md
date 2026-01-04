@@ -37,6 +37,7 @@
 
 | 檔案 | 狀態 | 說明 |
 |------|------|------|
+| `uadp-setup.py` | ✅ 核心資產 | 動態流式安裝器（v2.0）⭐ |
 | `setup_doctor.py` | ✅ 核心資產 | 環境診斷工具 |
 | `validate_schema.py` | ✅ 核心資產 | JSON Schema 驗證工具 |
 
@@ -46,8 +47,16 @@
 |------|------|------|
 | `FILE_STRUCTURE.md` | ✅ 核心資產 | 檔案架構說明 |
 | `user_guide_plain.md` | ✅ 核心資產 | 白話使用者指南 |
+| `QUICK_START_GUIDE.md` | ✅ 核心資產 | 快速啟動指南（小白專用）⭐ |
 | `preview_format_proposal.md` | ✅ 核心資產 | Preview 格式建議草案 |
 | `plain_language_template.md` | ✅ 核心資產 | 白話翻譯模板草案 |
+
+### 啟動檔案（根目錄）⭐ 新增
+
+| 檔案 | 狀態 | 說明 |
+|------|------|------|
+| `UADP-Windows開始.bat` | ✅ 核心資產 | Windows Bootstrapper 啟動檔 |
+| `UADP-macOS開始.command` | ✅ 核心資產 | macOS/Linux Bootstrapper 啟動檔 |
 
 ### 根目錄檔案
 
@@ -55,6 +64,13 @@
 |------|------|------|
 | `README.md` | ✅ 核心資產 | 專案說明文件 |
 | `.gitignore` | ✅ 核心資產 | Git 忽略規則 |
+| `LICENSE` | ✅ 核心資產 | MIT 授權協議 |
+
+### CI 工作流（`.github/workflows/`）⭐ 新增
+
+| 檔案 | 狀態 | 說明 |
+|------|------|------|
+| `uadp-ci.yml` | ✅ 核心資產 | GitHub Actions CI 工作流 |
 
 ---
 
@@ -109,11 +125,14 @@
 | **核心規則檔案** | 3 | 核心框架規則 |
 | **適配器模板** | 4 | 技術棧適配器 |
 | **JSON Schema** | 2 | 資料驗證 Schema |
-| **工具腳本** | 2 | 診斷與驗證工具 |
-| **文件與模板** | 5 | 說明文件與模板 |
+| **工具腳本** | 3 | 動態安裝器、診斷與驗證工具 |
+| **啟動檔案** | 2 | Bootstrapper 啟動檔（Windows, macOS/Linux） |
+| **CI 工作流** | 1 | GitHub Actions CI 工作流 |
+| **文件與模板** | 6 | 說明文件與模板（含快速啟動指南） |
+| **根目錄檔案** | 3 | README.md, .gitignore, LICENSE |
 | **模板檔案** | 3 | 空模板（state.json, amendments.md, decisions.md） |
 | **執行產出** | 7+ | 專案執行產出（應被忽略） |
-| **總核心資產** | **19** | 應提交至 Git |
+| **總核心資產** | **27** | 應提交至 Git（v1.1.0） |
 
 ---
 
@@ -125,6 +144,8 @@
 - [ ] 所有適配器模板（`.uadp/adapters/*.mdc`）已提交
 - [ ] 所有 JSON Schema（`.uadp/schemas/*.json`）已提交
 - [ ] 所有工具腳本（`scripts/*.py`）已提交
+- [ ] 所有啟動檔案（`UADP-*.bat`, `UADP-*.command`）已提交
+- [ ] CI 工作流（`.github/workflows/uadp-ci.yml`）已提交
 - [ ] 所有文件（`README.md`, `.uadp/*.md`）已提交
 - [ ] `.gitignore` 已正確配置，排除執行產出
 - [ ] `state.json` 已重置為模板狀態（PLANNING）

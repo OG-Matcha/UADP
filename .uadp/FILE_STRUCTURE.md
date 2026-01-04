@@ -2,7 +2,7 @@
 
 > **最後更新：** 2026-01-04  
 > **當前階段：** PLANNING（模板狀態）  
-> **版本：** 1.0
+> **版本：** 1.1.0
 
 ---
 
@@ -27,7 +27,8 @@ UADP/
 │   │
 │   ├── logs/                       # 決策紀錄目錄
 │   │   ├── decisions.md            # 技術決策紀錄
-│   │   └── release_v1.0_checklist.md  # v1.0 發布檢查清單（已歸檔）
+│   │   ├── release_v1.0_checklist.md  # v1.0 發布檢查清單（已歸檔）
+│   │   └── release_v1.1_checklist.md  # v1.1.0 發布檢查清單（已歸檔）
 │   │
 │   │
 │   ├── FILE_STRUCTURE.md            # 本檔案（核心資產）
