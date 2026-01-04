@@ -386,7 +386,7 @@ def setup_schemas():
     """建立 JSON Schema"""
     print("\n[4/4] 建立 JSON Schema...")
     
-    # state.schema.json
+    # state.schema.json (完整版)
     state_schema = {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "$id": "https://uadp.dev/schemas/state.schema.json",
@@ -422,10 +422,26 @@ def setup_schemas():
                             "format": "date-time",
                             "description": "進入階段的時間（ISO 8601）"
                         },
+                        "completed_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "完成階段的時間（ISO 8601，可選）"
+                        },
                         "status": {
                             "type": "string",
                             "enum": ["in_progress", "completed", "awaiting_confirmation"],
                             "description": "階段狀態"
+                        },
+                        "deliverable": {
+                            "type": "string",
+                            "description": "階段產出檔案路徑（可選）"
+                        },
+                        "deliverables": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "階段產出檔案路徑列表（可選）"
                         }
                     }
                 }
@@ -442,6 +458,36 @@ def setup_schemas():
             "amendments_file": {
                 "type": "string",
                 "description": "amendments.md 檔案路徑"
+            },
+            "completed_steps": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "description": "已完成步驟列表（可選）"
+            },
+            "blocking_issues": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "description": "阻塞問題列表（可選）"
+            },
+            "test_hashes": {
+                "type": "object",
+                "description": "測試檔案 Hash 記錄（用於測試鎖定機制）",
+                "additionalProperties": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$",
+                    "description": "SHA-256 Hash 值"
+                }
+            },
+            "diagnosis_deliverables": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "description": "DIAGNOSIS 階段產出檔案列表（可選）"
             }
         },
         "additionalProperties": False
@@ -450,12 +496,12 @@ def setup_schemas():
     write_file(UADP_DIR / "schemas" / "state.schema.json", 
                json.dumps(state_schema, ensure_ascii=False, indent=2))
     
-    # contract.schema.json (簡化版)
+    # contract.schema.json (完整版)
     contract_schema = {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "$id": "https://uadp.dev/schemas/contract.schema.json",
         "title": "UADP Contract Schema",
-        "description": "UADP 契約 JSON Schema",
+        "description": "UADP 契約 JSON Schema，定義 contract.json 的結構與驗證規則",
         "type": "object",
         "required": [
             "contract_version",
@@ -468,14 +514,179 @@ def setup_schemas():
         "properties": {
             "contract_version": {
                 "type": "string",
-                "pattern": "^\\d+\\.\\d+$"
+                "pattern": "^\\d+\\.\\d+$",
+                "description": "契約版本號（格式：major.minor）"
             },
             "created_at": {
                 "type": "string",
-                "format": "date-time"
+                "format": "date-time",
+                "description": "契約建立時間（ISO 8601）"
             },
             "project_type": {
-                "type": "string"
+                "type": "string",
+                "description": "專案類型（如：framework_package, web_app, mobile_app）"
+            },
+            "metadata": {
+                "type": "object",
+                "required": ["project_name", "description"],
+                "properties": {
+                    "project_name": {
+                        "type": "string",
+                        "description": "專案名稱"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "專案描述"
+                    },
+                    "target_users": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "目標使用者列表"
+                    },
+                    "technology_stack": {
+                        "type": "object",
+                        "properties": {
+                            "core": {
+                                "type": "string"
+                            },
+                            "auxiliary_scripts": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "integration_points": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "additionalProperties": True
+            },
+            "requirements": {
+                "type": "object",
+                "required": ["hard_constraints", "technical_freedom"],
+                "properties": {
+                    "hard_constraints": {
+                        "type": "object",
+                        "description": "核心約束（不可變的約束條件）",
+                        "properties": {
+                            "environment": {
+                                "type": "object"
+                            },
+                            "sdlc_phases": {
+                                "type": "object"
+                            },
+                            "test_guard": {
+                                "type": "object"
+                            },
+                            "autonomous_amendment": {
+                                "type": "object"
+                            }
+                        },
+                        "additionalProperties": True
+                    },
+                    "technical_freedom": {
+                        "type": "object",
+                        "description": "技術自由度（可選擇的技術方案）",
+                        "additionalProperties": True
+                    }
+                },
+                "additionalProperties": False
+            },
+            "milestones": {
+                "type": "object",
+                "description": "階段性任務與驗收標準",
+                "patternProperties": {
+                    "^phase_\\d+_.+$": {
+                        "type": "object",
+                        "required": ["status"],
+                        "properties": {
+                            "status": {
+                                "type": "string",
+                                "enum": ["pending", "in_progress", "completed"]
+                            },
+                            "deliverables": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "acceptance_criteria": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "decisions": {
+                                "type": "object",
+                                "description": "階段決策記錄",
+                                "additionalProperties": True
+                            }
+                        },
+                        "additionalProperties": True
+                    }
+                },
+                "additionalProperties": False
+            },
+            "problem_statement": {
+                "type": "object",
+                "properties": {
+                    "core_issues": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "existing_solutions_limitations": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "additionalProperties": True
+            },
+            "design_rationale": {
+                "type": "object",
+                "description": "設計理由說明",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
+            "open_questions": {
+                "type": "array",
+                "items": {
+                    "oneOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "question": {
+                                    "type": "string"
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "enum": ["pending", "resolved"]
+                                },
+                                "resolution": {
+                                    "type": "string"
+                                },
+                                "documented_in": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["question", "status"]
+                        }
+                    ]
+                }
             }
         },
         "additionalProperties": False
@@ -484,7 +695,7 @@ def setup_schemas():
     write_file(UADP_DIR / "schemas" / "contract.schema.json",
                json.dumps(contract_schema, ensure_ascii=False, indent=2))
     
-    print("  ⚠️  注意：Schema 檔案為簡化版，完整 Schema 請從 UADP 框架倉庫複製。")
+    print("  ✓ Schema 檔案已建立（完整版）")
 
 
 def main():
