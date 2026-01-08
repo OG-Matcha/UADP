@@ -214,6 +214,188 @@ AI 會用蘇格拉底詰問法問你問題，幫你把模糊的想法變成清�
 
 ---
 
+## 🔀 混合開發模式 (Hybrid Mode)
+
+### 什麼是混合開發模式？
+
+混合開發模式讓你可以**同時使用 ChatGPT/Gemini 與 Cursor IDE**，發揮兩者的優勢：
+
+- **ChatGPT/Gemini**：作為「外部協調員」，協助需求釐清與白話溝通
+- **Cursor IDE**：作為「實作引擎」，執行代碼生成與測試驗證
+
+### 為什麼需要混合模式？
+
+1. **更好的需求釐清**：ChatGPT/Gemini 擅長蘇格拉底詰問，能更深入地理解需求
+2. **白話溝通**：非技術使用者更容易理解 ChatGPT/Gemini 的說明
+3. **專業實作**：Cursor IDE 的 AI 具備完整的專案上下文，實作更精準
+
+### 如何設定混合模式？
+
+#### 步驟 1：上傳外部引導協議
+
+1. 開啟 ChatGPT 或 Gemini
+2. 上傳 `.uadp/UADP_EXTERNAL_PILOT.md` 檔案
+3. 告訴 AI：「請閱讀這份文件，你現在是 UADP 外部協調員」
+
+**檔案位置：**
+- 初始化後，檔案位於：`.uadp/UADP_EXTERNAL_PILOT.md`
+- 或從 GitHub 下載：[UADP_EXTERNAL_PILOT.md](https://raw.githubusercontent.com/OG-Matcha/UADP/main/.uadp/UADP_EXTERNAL_PILOT.md)
+
+#### 步驟 2：標準作業流程 (SOP)
+
+**完整流程：**
+
+```
+1. 在 ChatGPT/Gemini 中描述需求
+   ↓
+2. ChatGPT/Gemini 進行蘇格拉底詰問
+   ↓
+3. ChatGPT/Gemini 產出 [TO CURSOR] 代碼塊
+   ↓
+4. 複製代碼塊到 Cursor IDE
+   ↓
+5. Cursor 執行並產出結果
+   ↓
+6. 複製結果回到 ChatGPT/Gemini
+   ↓
+7. ChatGPT/Gemini 解讀結果並以白話說明
+   ↓
+8. 根據結果決定下一步
+   ↓
+9. 重複步驟 3-8，直到專案完成
+```
+
+#### 步驟 3：範例對話
+
+**在 ChatGPT/Gemini 中：**
+
+```
+使用者：「我想做一個待辦事項 App」
+
+ChatGPT/Gemini（外部協調員）：
+「好的，讓我先了解一下你的需求：
+1. 這個 App 的主要使用者是誰？（個人使用？團隊協作？）
+2. 需要哪些核心功能？（新增、刪除、編輯？提醒？分類？）
+3. 有什麼技術限制嗎？（必須用 Flutter？必須離線可用？）」
+
+使用者：「個人使用，需要新增、刪除、編輯，還有分類功能。必須用 Flutter，要離線可用。」
+
+ChatGPT/Gemini（外部協調員）：
+「明白了！現在請將以下代碼塊複製到 Cursor IDE 中：」
+
+[TO CURSOR]
+
+請切換至 [MODE: ARCHITECT] 模式。
+
+專案需求摘要：
+- 專案類型：待辦事項 App
+- 目標使用者：個人使用者
+- 核心功能：
+  - 新增、刪除、編輯待辦事項
+  - 標記完成狀態
+  - 分類管理（工作、個人、購物）
+- 技術約束：
+  - 必須使用 Flutter
+  - 必須支援離線使用
+- 技術自由度：
+  - 狀態管理方案：可選（Provider、Riverpod、Bloc）
+  - UI 風格：可選（Material Design、自訂設計）
+
+請開始蘇格拉底詰問，並產出 contract.json。
+```
+
+**在 Cursor IDE 中：**
+
+```
+Cursor AI（ARCHITECT 模式）：
+「好的，讓我再確認一些細節：
+1. 分類是固定的（工作、個人、購物），還是可以自訂？
+2. 需要提醒功能嗎？（推播通知？）
+3. 資料儲存在哪裡？（本地 SQLite？雲端同步？）」
+
+...（繼續蘇格拉底詰問）...
+
+「已完成 contract.json，請查看 .uadp/contract.json」
+```
+
+**回到 ChatGPT/Gemini：**
+
+```
+使用者：「Cursor 說已完成 contract.json」
+
+ChatGPT/Gemini（外部協調員）：
+「✅ 太好了！需求釐清階段已完成。Cursor 已經產出了專案契約文件。
+
+下一步：請將以下代碼塊複製到 Cursor IDE 中，開始環境診斷：」
+
+[TO CURSOR]
+
+請切換至 [MODE: CODER] 模式。
+
+任務：執行環境診斷
+- 檢查 Flutter SDK 版本
+- 檢查依賴項是否正確安裝
+- 檢查專案結構是否符合 Flutter 規範
+
+請產出診斷報告。
+```
+
+### 關鍵檔案格式
+
+#### [TO CURSOR] 代碼塊格式
+
+**必須包含：**
+- 角色切換指令（如：`[MODE: ARCHITECT]`）
+- 明確的任務描述
+- 必要的上下文資訊
+
+**範例：**
+
+```markdown
+[TO CURSOR]
+
+請切換至 [MODE: ARCHITECT] 模式。
+
+專案需求：[描述]
+請開始蘇格拉底詰問，並產出 contract.json。
+```
+
+#### 回傳結果解讀
+
+**ChatGPT/Gemini 會：**
+- ✅ 翻譯技術術語為白話
+- ✅ 識別問題並建議解決方案
+- ✅ 確認進度並引導下一步
+
+**範例：**
+
+```
+Cursor 回傳：
+```
+✓ Flutter SDK version: 3.16.0
+✓ Dependencies installed
+✓ Project structure valid
+```
+
+ChatGPT/Gemini（外部協調員）：
+「✅ 環境診斷完成！Flutter 開發環境已正確安裝，所有依賴項都已就緒，專案結構也符合規範。現在可以開始開發了！」
+
+下一步：請產出 [TO CURSOR] 要求進入實作階段。
+```
+
+### 注意事項
+
+- ✅ **主動詢問**：當需求不明確時，ChatGPT/Gemini 會主動使用蘇格拉底詰問法
+- ✅ **確認理解**：在產出 [TO CURSOR] 前，ChatGPT/Gemini 會確認理解使用者的需求
+- ✅ **追蹤進度**：ChatGPT/Gemini 會記錄當前階段，確保流程不跳躍
+- ✅ **白話翻譯**：ChatGPT/Gemini 始終以非技術者能理解的語言說明
+
+### 相關文件
+
+- [外部引導協議完整文件](.uadp/UADP_EXTERNAL_PILOT.md) - 給 ChatGPT/Gemini 的詳細指令手冊
+
+---
+
 ## 📁 專案結構
 
 ```

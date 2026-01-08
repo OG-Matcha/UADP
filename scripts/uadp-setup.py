@@ -6,7 +6,7 @@ UADP Framework Setup Script
 此腳本會自動從 GitHub 下載最新的 UADP 框架檔案，確保版本同步。
 
 版本: 2.0 (動態流式安裝器)
-最後更新: 2026-01-04
+最後更新: 2026-01-08
 """
 
 import os
@@ -43,6 +43,8 @@ MANIFEST = [
     # JSON Schema
     ".uadp/schemas/state.schema.json",
     ".uadp/schemas/contract.schema.json",
+    # 外部引導協議
+    ".uadp/UADP_EXTERNAL_PILOT.md",
 ]
 
 
@@ -179,6 +181,7 @@ def download_core_assets():
         ".uadp/adapters/backend-api.mdc": "正在獲取後端 API 適配器...",
         ".uadp/schemas/state.schema.json": "正在獲取狀態 Schema...",
         ".uadp/schemas/contract.schema.json": "正在獲取契約 Schema...",
+        ".uadp/UADP_EXTERNAL_PILOT.md": "正在獲取外部引導協議...",
     }
     
     for remote_path in MANIFEST:
