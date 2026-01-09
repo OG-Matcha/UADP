@@ -49,6 +49,26 @@ alwaysApply: true
   - `requirements.technical_freedom`：技術選擇的自由度
   - `milestones`：階段性任務與驗收標準
 
+### 2.5 自主銜接規則（Autonomous Chaining）
+**當 ARCHITECT 完成規劃並產出 `contract.json` 後：**
+
+1. ✅ **必須初始化任務看板**：
+   - 根據 `contract.json` 中的 `milestones` 生成 `.uadp/tasks.md`
+   - 將所有任務標記為 `pending` 狀態
+   - 設定當前階段為 `IMPLEMENTATION`
+
+2. ✅ **必須下令執行**：
+   - 打印：`✅ 規劃完成，任務清單已初始化。執行任務清單...`
+   - 自動切換至第一個任務的對應角色（通常是 `[MODE: QA]` 或 `[MODE: CODER]`）
+   - 禁止產出長篇規劃總結，直接進入執行階段
+
+**範例：**
+```
+✅ 規劃完成，任務清單已初始化。執行任務清單...
+
+[MODE: QA] 開始為 Task 1 生成測試...
+```
+
 ---
 
 ## 3. [MODE: CODER] 工程師行為規範
@@ -87,6 +107,25 @@ alwaysApply: true
 - **錯誤處理**：根因導向，避免快補
 - **效能考量**：先量測再優化，優先使用 O(1)/O(n) 演算法
 
+### 3.6 自主銜接規則（Autonomous Chaining）
+**當 CODER 完成實作且測試通過後：**
+
+1. ✅ **必須自動觸發 QA**：
+   - 打印：`✅ Task [N] 實作完成，自動觸發測試驗證...`
+   - 立即切換至 `[MODE: QA]` 執行測試驗證
+   - 禁止產出長篇實作報告、代碼解釋或技術細節
+
+2. ✅ **任務狀態更新**：
+   - 在 `.uadp/tasks.md` 中將該任務標記為 `completed`
+   - 更新狀態後立即進入下一個任務
+
+**範例：**
+```
+✅ Task 1 實作完成，自動觸發測試驗證...
+
+[MODE: QA] 執行測試驗證...
+```
+
 ---
 
 ## 4. [MODE: QA] 測試員行為規範
@@ -122,6 +161,28 @@ alwaysApply: true
 2. 將 Hash 記錄至 `.uadp/state.json` 的 `test_hashes` 欄位
 3. 在規則中明確規定：`[MODE: CODER]` 無權修改 `tests/` 目錄
 4. 若需修改測試，必須透過 `[MODE: AUDITOR]` 記錄理由並由 Architect 授權更新 Hash
+
+### 4.6 自主銜接規則（Autonomous Chaining）
+**當 QA 通過驗證後：**
+
+1. ✅ **檢查剩餘任務**：
+   - 讀取 `.uadp/tasks.md`，檢查是否還有 `pending` 狀態的任務
+
+2. ✅ **自動銜接**：
+   - **若還有剩餘任務**：
+     - 打印：`✅ Task [N] 測試通過，自動切換至下一個任務...`
+     - 立即切換至 `[MODE: CODER]` 執行下一個任務
+     - 禁止產出長篇測試報告
+   - **若所有任務完成**：
+     - 打印：`✅ 所有任務完成，進入審計階段...`
+     - 切換至 `[MODE: AUDITOR]`
+
+**範例：**
+```
+✅ Task 1 測試通過，自動切換至下一個任務...
+
+[MODE: CODER] 開始實作 Task 2...
+```
 
 ---
 
@@ -165,14 +226,18 @@ alwaysApply: true
 
 ## 6. 角色協作流程
 
-### 6.1 標準流程
+### 6.1 標準流程（含自主銜接）
 ```
 [MODE: ARCHITECT] → 產出 contract.json
-    ↓
+    ↓ [自動初始化 tasks.md]
 [MODE: QA] → 產出測試檔案（記錄 Hash）
-    ↓
+    ↓ [自動觸發]
 [MODE: CODER] → 實作代碼（通過測試）
-    ↓
+    ↓ [自動觸發]
+[MODE: QA] → 驗證測試
+    ↓ [檢查 tasks.md，若還有任務則自動切換]
+[MODE: CODER] → 實作下一個任務
+    ↓ [循環直到所有任務完成]
 [MODE: AUDITOR] → 產出審計報告
 ```
 
@@ -211,5 +276,5 @@ alwaysApply: true
 
 ---
 
-**最後更新：** 2026-01-04  
-**版本：** 1.0
+**最後更新：** 2026-01-09  
+**版本：** 1.1
