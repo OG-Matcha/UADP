@@ -101,6 +101,10 @@ UADP 是一個**元框架（Meta-Framework）**，它為 Cursor IDE 提供了一
 
 ## 🚀 快速開始
 
+> **💡 推薦流程**  
+> UADP v1.3+ 推薦使用「混合模式」：由外部 AI 進行 Planning 並產出「長程複合指令」，再由 Cursor 執行鏈式任務。  
+> 詳細說明請參考 [混合開發模式](#-混合開發模式-hybrid-mode) 章節。
+
 ### 前置需求
 
 - [Cursor IDE](https://cursor.sh/)（推薦最新版本）

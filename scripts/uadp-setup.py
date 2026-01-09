@@ -254,6 +254,7 @@ def main():
         print("   1. 在 Cursor IDE 中開啟此專案")
         print("   2. 告訴 AI: '[MODE: ARCHITECT] 我想做一個 [你的專案想法]'")
         print("   3. AI 會用蘇格拉底詰問法幫你釐清需求")
+        print("   4. 📋 啟動混合/自主模式：將 .uadp/UADP_EXTERNAL_PILOT.md 上傳至 ChatGPT 或 Gemini，開啟最強大的規劃與自動化能力。")
         print("\n💡 提示：")
         print("   - 所有核心資產已從 GitHub 獲取最新版本")
         print("   - 詳細文件請參考: https://github.com/OG-Matcha/UADP")
