@@ -1,8 +1,8 @@
 # UADP 框架檔案架構
 
-> **最後更新：** 2026-01-04  
+> **最後更新：** 2026-01-09  
 > **當前階段：** PLANNING（模板狀態）  
-> **版本：** 1.1.0
+> **版本：** 1.3
 
 ---
 
@@ -47,7 +47,8 @@ UADP/
 │   └── rules/                      # Cursor Rules 規則檔案
 │       ├── uadp-core.mdc           # 核心規則（狀態機、行為準則）
 │       ├── uadp-agent-roles.mdc    # 角色行為定義（4 種角色）
-│       └── uadp-qa-standard.mdc    # QA 標準與測試鎖定邏輯
+│       ├── uadp-qa-standard.mdc     # QA 標準與測試鎖定邏輯
+│       └── uadp-task-runner.mdc    # 任務驅動協議與鏈式執行（v1.3）
 │
 ├── scripts/                         # 輔助工具腳本目錄
 │   ├── setup_doctor.py             # 環境診斷工具
@@ -258,7 +259,7 @@ UADP/
 | 類別 | 檔案數量 | 說明 |
 |------|---------|------|
 | 核心配置 | 3 | state.json, contract.json, amendments.md |
-| 規則檔案 | 3 | uadp-core.mdc, uadp-agent-roles.mdc, uadp-qa-standard.mdc |
+| 規則檔案 | 4 | uadp-core.mdc, uadp-agent-roles.mdc, uadp-qa-standard.mdc, uadp-task-runner.mdc |
 | 適配器 | 4 | 3 個適配器 + README.md |
 | JSON Schema | 2 | state.schema.json, contract.schema.json |
 | 工具腳本 | 3 | uadp-setup.py, setup_doctor.py, validate_schema.py |
@@ -280,7 +281,8 @@ contract.json (契約)
 .cursor/rules/ (規則檔案)
     ├── uadp-core.mdc (核心規則)
     ├── uadp-agent-roles.mdc (角色定義)
-    └── uadp-qa-standard.mdc (QA 標準)
+    ├── uadp-qa-standard.mdc (QA 標準)
+    └── uadp-task-runner.mdc (任務驅動協議)
     ↓
 .uadp/adapters/ (適配器)
     ├── mobile-flutter.mdc
@@ -312,6 +314,6 @@ scripts/ (工具)
 
 ---
 
-**最後更新：** 2026-01-04  
+**最後更新：** 2026-01-09  
 **維護者：** UADP Framework
 

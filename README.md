@@ -3,7 +3,7 @@
 > **將 Cursor 從代碼聊天機器人轉化為具備權力制衡、自主修正與標準開發流程的自動化軟體工廠**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/OG-Matcha/UADP/blob/main/LICENSE)
-[![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-blue.svg)](https://github.com/OG-Matcha/UADP)
+[![Version: 1.3](https://img.shields.io/badge/Version-1.3-blue.svg)](https://github.com/OG-Matcha/UADP)
 
 ---
 
@@ -68,7 +68,22 @@ UADP 是一個**元框架（Meta-Framework）**，它為 Cursor IDE 提供了一
 - 所有未經確認的變更 → 記錄至 `amendments.md`
 - 以「系統穩定性」與「技術最適解」為第一優先
 
-### 3. 技術適配器（Adapters）
+### 3. 自主鏈式執行（Autonomous Chaining）
+
+**問題：** AI 在每個任務完成後停下來等待確認，導致執行中斷。
+
+**解決方案：**
+- **任務看板**：AI 維護 `.uadp/tasks.md`，追蹤所有任務狀態
+- **自動銜接**：任務完成後自動切換至下一個任務，無需人工介入
+- **鏈式執行**：禁止產出長篇結論，直接執行下一個步驟
+- **長程指令**：支援一次性執行多個任務，提高效率
+
+**效果：**
+- ✅ 解決執行中斷問題
+- ✅ 提高執行效率
+- ✅ 支援長程複合指令
+
+### 4. 技術適配器（Adapters）
 
 **問題：** 不同技術棧需要不同的最佳實踐與測試框架。
 
@@ -410,7 +425,8 @@ your-project/
 ├── .cursor/rules/            # Cursor Rules（核心資產）
 │   ├── uadp-core.mdc
 │   ├── uadp-agent-roles.mdc
-│   └── uadp-qa-standard.mdc
+│   ├── uadp-qa-standard.mdc
+│   └── uadp-task-runner.mdc
 └── scripts/                  # 工具腳本（核心資產）
     ├── setup_doctor.py
     └── validate_schema.py
@@ -435,6 +451,7 @@ your-project/
 - [uadp-core.mdc](.cursor/rules/uadp-core.mdc) - 核心規則與狀態機
 - [uadp-agent-roles.mdc](.cursor/rules/uadp-agent-roles.mdc) - 角色行為定義
 - [uadp-qa-standard.mdc](.cursor/rules/uadp-qa-standard.mdc) - QA 標準與測試鎖定
+- [uadp-task-runner.mdc](.cursor/rules/uadp-task-runner.mdc) - 任務驅動協議與鏈式執行
 
 ---
 

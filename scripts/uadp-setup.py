@@ -6,7 +6,7 @@ UADP Framework Setup Script
 此腳本會自動從 GitHub 下載最新的 UADP 框架檔案，確保版本同步。
 
 版本: 2.0 (動態流式安裝器)
-最後更新: 2026-01-08
+最後更新: 2026-01-09
 """
 
 import os
@@ -35,6 +35,7 @@ MANIFEST = [
     ".cursor/rules/uadp-core.mdc",
     ".cursor/rules/uadp-agent-roles.mdc",
     ".cursor/rules/uadp-qa-standard.mdc",
+    ".cursor/rules/uadp-task-runner.mdc",
     # 適配器模板
     ".uadp/adapters/README.md",
     ".uadp/adapters/mobile-flutter.mdc",
@@ -175,6 +176,7 @@ def download_core_assets():
         ".cursor/rules/uadp-core.mdc": "正在獲取最新核心憲法...",
         ".cursor/rules/uadp-agent-roles.mdc": "正在獲取角色行為定義...",
         ".cursor/rules/uadp-qa-standard.mdc": "正在獲取 QA 標準...",
+        ".cursor/rules/uadp-task-runner.mdc": "正在獲取鏈式執行協議...",
         ".uadp/adapters/README.md": "正在獲取適配器說明...",
         ".uadp/adapters/mobile-flutter.mdc": "正在獲取 Flutter 適配器...",
         ".uadp/adapters/web-modern.mdc": "正在獲取 Web 適配器...",
